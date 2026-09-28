@@ -27,15 +27,19 @@ import org.springframework.web.server.ResponseStatusException;
 /** Testa as regras do service de bombas sem subir o Spring (repositórios simulados). */
 class BombaServiceTest {
 
+    /** Repositório simulado: nenhum teste acessa o banco. */
     @Mock
     private BombaRepository repository;
 
+    /** Service de combustíveis simulado (usado para achar o combustível da bomba). */
     @Mock
     private CombustivelService combustivelService;
 
+    /** Service real sob teste, com os mocks acima injetados. */
     @InjectMocks
     private BombaService service;
 
+    /** Cria um combustível simples só com id e nome, para ligar às bombas dos testes. */
     private Combustivel combustivel(long id) {
         Combustivel c = new Combustivel();
         c.setId(id);
@@ -43,6 +47,7 @@ class BombaServiceTest {
         return c;
     }
 
+    /** Cria uma bomba com id, nome e combustível, como se já viesse do banco. */
     private Bomba bomba(long id, String nome, Combustivel combustivel) {
         Bomba b = new Bomba();
         b.setId(id);

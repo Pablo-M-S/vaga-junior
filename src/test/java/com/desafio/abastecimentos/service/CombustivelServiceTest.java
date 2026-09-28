@@ -26,12 +26,15 @@ import org.springframework.web.server.ResponseStatusException;
 @ExtendWith(MockitoExtension.class)
 class CombustivelServiceTest {
 
+    /** Repositório simulado: nenhum teste acessa o banco. */
     @Mock
     private CombustivelRepository repository;
 
+    /** Service real sob teste, com o mock acima injetado. */
     @InjectMocks
     private CombustivelService service;
 
+    /** Cria um combustível com id, nome e preço, como se já viesse do banco. */
     private Combustivel combustivel(long id, String nome, String preco) {
         Combustivel c = new Combustivel();
         c.setId(id);

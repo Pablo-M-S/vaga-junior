@@ -13,8 +13,10 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class CombustivelService {
 
+    /** Acesso ao banco para combustíveis. */
     private final CombustivelRepository repository;
 
+    /** Recebe o repositório por construtor (injeção feita pelo Spring). */
     public CombustivelService(CombustivelRepository repository) {
         this.repository = repository;
     }

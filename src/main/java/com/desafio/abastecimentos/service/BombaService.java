@@ -13,9 +13,12 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class BombaService {
 
+    /** Acesso ao banco para bombas. */
     private final BombaRepository repository;
+    /** Usado para conferir se o combustível informado existe. */
     private final CombustivelService combustivelService;
 
+    /** Recebe as dependências por construtor (injeção feita pelo Spring). */
     public BombaService(BombaRepository repository, CombustivelService combustivelService) {
         this.repository = repository;
         this.combustivelService = combustivelService;

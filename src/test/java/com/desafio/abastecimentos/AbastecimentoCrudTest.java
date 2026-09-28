@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 /** GET por id, PUT, DELETE, preço praticado e data futura em abastecimentos. */
 class AbastecimentoCrudTest extends ApiTestBase {
 
+    /** Data fixa (no passado) usada nos abastecimentos criados pelos testes. */
     private static final String DATA = "2026-09-01T10:00:00";
 
     /** GET por id devolve bomba, litros e valor total. */

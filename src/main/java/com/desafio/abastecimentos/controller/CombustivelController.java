@@ -17,8 +17,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/combustiveis")
 public class CombustivelController {
 
+    /** Regras de negócio deste recurso; o controller só delega. */
     private final CombustivelService service;
 
+    /** Recebe o service por construtor (injeção feita pelo Spring). */
     public CombustivelController(CombustivelService service) {
         this.service = service;
     }

@@ -17,8 +17,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/bombas")
 public class BombaController {
 
+    /** Regras de negócio deste recurso; o controller só delega. */
     private final BombaService service;
 
+    /** Recebe o service por construtor (injeção feita pelo Spring). */
     public BombaController(BombaService service) {
         this.service = service;
     }

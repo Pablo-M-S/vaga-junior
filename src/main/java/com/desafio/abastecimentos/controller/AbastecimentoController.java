@@ -22,8 +22,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/abastecimentos")
 public class AbastecimentoController {
 
+    /** Regras de negócio deste recurso; o controller só delega. */
     private final AbastecimentoService service;
 
+    /** Recebe o service por construtor (injeção feita pelo Spring). */
     public AbastecimentoController(AbastecimentoService service) {
         this.service = service;
     }

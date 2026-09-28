@@ -22,9 +22,12 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class AbastecimentoService {
 
+    /** Acesso ao banco para abastecimentos. */
     private final AbastecimentoRepository repository;
+    /** Usado para conferir se a bomba informada existe. */
     private final BombaService bombaService;
 
+    /** Recebe as dependências por construtor (injeção feita pelo Spring). */
     public AbastecimentoService(AbastecimentoRepository repository, BombaService bombaService) {
         this.repository = repository;
         this.bombaService = bombaService;

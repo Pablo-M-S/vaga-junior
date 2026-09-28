@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 abstract class ApiTestBase {
 
+    /** Cliente HTTP simulado: chama os controllers sem subir um servidor. */
     @Autowired
     protected MockMvc mvc;
 

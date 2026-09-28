@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class AbastecimentosApplication {
 
+    /** Sobe a aplicação Spring Boot (servidor web na porta 8080 por padrão). */
     public static void main(String[] args) {
         SpringApplication.run(AbastecimentosApplication.class, args);
     }

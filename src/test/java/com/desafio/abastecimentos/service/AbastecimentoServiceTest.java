@@ -28,14 +28,18 @@ import org.springframework.web.server.ResponseStatusException;
 /** Testa as regras do service de abastecimentos sem subir o Spring (repositório e BombaService simulados). */
 class AbastecimentoServiceTest {
 
+    /** Data fixa (no passado) usada em todos os abastecimentos dos testes. */
     private static final LocalDateTime DATA = LocalDateTime.of(2026, 9, 1, 10, 0);
 
+    /** Repositório simulado: nenhum teste acessa o banco. */
     @Mock
     private AbastecimentoRepository repository;
 
+    /** Service de bombas simulado (usado para achar a bomba do abastecimento). */
     @Mock
     private BombaService bombaService;
 
+    /** Service real sob teste, com os mocks acima injetados. */
     @InjectMocks
     private AbastecimentoService service;
 
@@ -52,6 +56,7 @@ class AbastecimentoServiceTest {
         return b;
     }
 
+    /** Cria um abastecimento já gravado; precoGuardado null simula um registro antigo, sem preço. */
     private Abastecimento abastecimento(Bomba bomba, String litros, String precoGuardado) {
         Abastecimento a = new Abastecimento();
         a.setId(7L);
