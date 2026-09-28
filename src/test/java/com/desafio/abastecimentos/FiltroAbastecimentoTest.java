@@ -46,8 +46,16 @@ class FiltroAbastecimentoTest {
 
     @Test
     void paginaOsResultados() throws Exception {
-        mvc.perform(get("/abastecimentos").param("size", "1"))
+        int combustivelId = criar("/combustiveis", "{\"nome\":\"Etanol\",\"precoPorLitro\":4.50}");
+        int bombaId = criar("/bombas", "{\"nome\":\"Bomba E\",\"combustivel\":{\"id\":" + combustivelId + "}}");
+        criar("/abastecimentos", "{\"bomba\":{\"id\":" + bombaId + "},\"data\":\"2026-09-10T10:00:00\",\"litros\":10}");
+        criar("/abastecimentos", "{\"bomba\":{\"id\":" + bombaId + "},\"data\":\"2026-09-11T10:00:00\",\"litros\":5}");
+
+        mvc.perform(get("/abastecimentos")
+                .param("bombaId", String.valueOf(bombaId))
+                .param("size", "1"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.content.length()").value(1));
+            .andExpect(jsonPath("$.content.length()").value(1))
+            .andExpect(jsonPath("$.page.totalElements").value(2));
     }
 }
