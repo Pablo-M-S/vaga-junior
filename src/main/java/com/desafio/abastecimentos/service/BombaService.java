@@ -67,6 +67,7 @@ public class BombaService {
         }
     }
 
+    /** Monta o erro 409 usado quando o nome da bomba já existe. */
     private ResponseStatusException nomeDuplicado() {
         return new ResponseStatusException(HttpStatus.CONFLICT, "Já existe uma bomba com esse nome");
     }

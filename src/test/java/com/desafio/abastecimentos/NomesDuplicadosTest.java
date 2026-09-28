@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 /** Combustível e bomba não podem repetir o nome (sem diferenciar maiúsculas e minúsculas). */
 class NomesDuplicadosTest extends ApiTestBase {
 
+    /** Criar combustível com nome já existente (igual ou em maiúsculas) dá 409. */
     @Test
     void combustivelComNomeRepetidoRetorna409() throws Exception {
         String nome = nomeUnico("Gasolina");
@@ -24,6 +25,7 @@ class NomesDuplicadosTest extends ApiTestBase {
             .andExpect(status().isConflict());
     }
 
+    /** Renomear um combustível para o nome de outro dá 409. */
     @Test
     void atualizarCombustivelParaNomeDeOutroRetorna409() throws Exception {
         String nomeA = nomeUnico("A");
@@ -35,6 +37,7 @@ class NomesDuplicadosTest extends ApiTestBase {
             .andExpect(status().isConflict());
     }
 
+    /** Alterar só o preço, mantendo o próprio nome, é permitido (200). */
     @Test
     void atualizarCombustivelMantendoOProprioNomeFunciona() throws Exception {
         String nome = nomeUnico("Gasolina");
@@ -45,6 +48,7 @@ class NomesDuplicadosTest extends ApiTestBase {
             .andExpect(status().isOk());
     }
 
+    /** Criar bomba com nome já existente (ignorando maiúsculas) dá 409. */
     @Test
     void bombaComNomeRepetidoRetorna409() throws Exception {
         int combustivelId = criarCombustivel("Gasolina", "5.89");
@@ -56,6 +60,7 @@ class NomesDuplicadosTest extends ApiTestBase {
             .andExpect(status().isConflict());
     }
 
+    /** Renomear uma bomba para o nome de outra dá 409. */
     @Test
     void atualizarBombaParaNomeDeOutraRetorna409() throws Exception {
         int combustivelId = criarCombustivel("Gasolina", "5.89");
@@ -68,6 +73,7 @@ class NomesDuplicadosTest extends ApiTestBase {
             .andExpect(status().isConflict());
     }
 
+    /** Atualizar a bomba mantendo o próprio nome é permitido (200). */
     @Test
     void atualizarBombaMantendoOProprioNomeFunciona() throws Exception {
         int combustivelId = criarCombustivel("Gasolina", "5.89");

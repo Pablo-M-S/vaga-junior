@@ -68,6 +68,7 @@ public class CombustivelService {
         }
     }
 
+    /** Monta o erro 409 usado quando o nome do combustível já existe. */
     private ResponseStatusException nomeDuplicado() {
         return new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um combustível com esse nome");
     }

@@ -6,8 +6,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.Test;
 
+/** Consulta de abastecimentos: filtros por bomba e período, e paginação. */
 class FiltroAbastecimentoTest extends ApiTestBase {
 
+    /** Só o abastecimento de 20/09 entra no período de 15 a 30/09 da bomba filtrada. */
     @Test
     void filtraPorBombaEPeriodo() throws Exception {
         int combustivelId = criarCombustivel("Diesel", "6.10");
@@ -25,6 +27,7 @@ class FiltroAbastecimentoTest extends ApiTestBase {
             .andExpect(jsonPath("$.content[0].litros").value(5.0));
     }
 
+    /** Com size=1 vem 1 item na página, mas o total de elementos continua 2. */
     @Test
     void paginaOsResultados() throws Exception {
         int combustivelId = criarCombustivel("Etanol", "4.50");

@@ -14,6 +14,7 @@ public class Bomba {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** Nome da bomba (ex.: "Bomba 1"); obrigatório e único, conferido no service. */
     @Column(nullable = false)
     private String nome;
 

@@ -16,6 +16,7 @@ public class Combustivel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** Nome do combustível (ex.: "Gasolina"); obrigatório e único, conferido no service. */
     @Column(nullable = false)
     private String nome;
 

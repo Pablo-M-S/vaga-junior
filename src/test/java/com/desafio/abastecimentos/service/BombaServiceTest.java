@@ -24,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
+/** Testa as regras do service de bombas sem subir o Spring (repositórios simulados). */
 class BombaServiceTest {
 
     @Mock
@@ -50,6 +51,7 @@ class BombaServiceTest {
         return b;
     }
 
+    /** Cria a bomba ligada ao combustível informado. */
     @Test
     void criaBombaComOCombustivelInformado() {
         Combustivel gasolina = combustivel(1L);
@@ -62,6 +64,7 @@ class BombaServiceTest {
         assertSame(gasolina, criada.getCombustivel());
     }
 
+    /** Combustível inexistente lança 404 ao criar. */
     @Test
     void criarComCombustivelInexistenteLanca404() {
         when(combustivelService.buscar(9L))
@@ -74,6 +77,7 @@ class BombaServiceTest {
         verify(repository, never()).save(any());
     }
 
+    /** Nome já usado lança 409 ao criar. */
     @Test
     void criarComNomeDuplicadoLanca409() {
         when(repository.existsByNomeIgnoreCase("Bomba 1")).thenReturn(true);
@@ -85,6 +89,7 @@ class BombaServiceTest {
         verify(repository, never()).save(any());
     }
 
+    /** Buscar id inexistente lança 404. */
     @Test
     void buscarInexistenteLanca404() {
         when(repository.findById(99L)).thenReturn(Optional.empty());
@@ -94,6 +99,7 @@ class BombaServiceTest {
         assertEquals(HttpStatus.NOT_FOUND, erro.getStatusCode());
     }
 
+    /** Atualiza nome e combustível da bomba existente. */
     @Test
     void atualizaNomeECombustivel() {
         Combustivel etanol = combustivel(2L);
@@ -107,6 +113,7 @@ class BombaServiceTest {
         assertSame(etanol, atualizada.getCombustivel());
     }
 
+    /** Nome de outra bomba lança 409 ao atualizar. */
     @Test
     void atualizarParaNomeDeOutraBombaLanca409() {
         when(repository.findById(1L)).thenReturn(Optional.of(bomba(1L, "Bomba 1", combustivel(1L))));
@@ -119,6 +126,7 @@ class BombaServiceTest {
         verify(repository, never()).save(any());
     }
 
+    /** Erro de chave estrangeira do banco vira 409 ao apagar. */
     @Test
     void apagarBombaComAbastecimentosLanca409() {
         Bomba existente = bomba(1L, "Bomba 1", combustivel(1L));
