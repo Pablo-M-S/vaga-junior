@@ -4,12 +4,14 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 /** Padroniza as respostas de erro da API em JSON. */
 @RestControllerAdvice
@@ -47,5 +49,20 @@ public class GlobalExceptionHandler {
         corpo.put("erro", status.getReasonPhrase());
         corpo.put("mensagem", mensagem);
         return corpo;
+    }
+
+    /** 400: parâmetro com tipo errado (ex.: data inválida em ?de= ou id não numérico). */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Map<String, Object>> tipoInvalido(MethodArgumentTypeMismatchException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(corpo(HttpStatus.BAD_REQUEST, "Valor inválido para o parâmetro '" + ex.getName() + "'"));
+    }
+
+    /** 400: ordenação por campo que não existe (ex.: ?sort=foo). */
+    @ExceptionHandler({PropertyReferenceException.class,
+        org.springframework.dao.InvalidDataAccessApiUsageException.class})
+    public ResponseEntity<Map<String, Object>> consultaInvalida(Exception ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(corpo(HttpStatus.BAD_REQUEST, "Parâmetros de consulta inválidos (confira o campo de ordenação)"));
     }
 }

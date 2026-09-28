@@ -1,6 +1,7 @@
 package com.desafio.abastecimentos;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -57,5 +58,20 @@ class ErrosApiTest {
                 .content("{\"nome\":\"Gasolina\",\"precoPorLitro\":99999999.99}"))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.campos.precoPorLitro").exists());
+    }
+
+    @Test
+    void parametrosInvalidosRetornam400NoFormatoPadrao() throws Exception {
+        mvc.perform(get("/abastecimentos").param("sort", "foo"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(400));
+
+        mvc.perform(get("/abastecimentos").param("de", "abc"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(400));
+
+        mvc.perform(get("/abastecimentos/abc"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(400));
     }
 }
