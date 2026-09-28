@@ -11,4 +11,4 @@ API em http://localhost:8080 · Console H2 em /h2-console (jdbc:h2:file:./data/a
 ## Endpoints
 - `/combustiveis` – GET, GET/{id}, POST, PUT/{id}, DELETE/{id}
 - `/bombas` – GET, GET/{id}, POST, PUT/{id}, DELETE/{id} (envie `{"nome":"Bomba 1","combustivel":{"id":1}}`)
-- `/abastecimentos` – (a fazer)
+- `/abastecimentos` – GET, GET/{id}, POST, PUT/{id}, DELETE/{id} (envie `{"bomba":{"id":1},"data":"2026-09-28T17:40:00","litros":10}`; o valor total é calculado)
