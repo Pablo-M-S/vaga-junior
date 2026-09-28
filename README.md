@@ -22,6 +22,10 @@ API REST em Java para cadastro e consulta de abastecimentos de um posto de combu
 - O **valor total** do abastecimento é calculado (litros x preço por litro)
 - Persistência em arquivo: os dados são mantidos após reiniciar
 - Validações (400) e recurso inexistente (404), com mensagem
+- Consulta de abastecimentos com filtros por bomba e período, e paginação
+- Erro 409 ao apagar registros vinculados a outros dados
+- Documentação interativa com Swagger/OpenAPI
+- Testes automatizados e CI com GitHub Actions
 
 ## Como rodar
 
