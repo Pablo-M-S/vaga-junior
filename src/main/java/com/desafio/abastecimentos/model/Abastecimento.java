@@ -4,21 +4,28 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/** Registro de um abastecimento realizado em uma bomba. */
+/**
+ * Registro de um abastecimento realizado em uma bomba.
+ * Relacionamento: uma bomba pode ter muitos abastecimentos (N para 1).
+ */
 @Entity
 public class Abastecimento {
 
+    /** Identificador gerado pelo banco (auto incremento). */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** Bomba em que o abastecimento foi feito; obrigatória (chave estrangeira bomba_id). */
     @ManyToOne(optional = false)
     @JoinColumn(name = "bomba_id")
     private Bomba bomba;
 
+    /** Data e hora do abastecimento. */
     @Column(nullable = false)
     private LocalDateTime data;
 
+    /** Quantidade abastecida, em litros (até 3 casas decimais). */
     @Column(nullable = false, precision = 10, scale = 3)
     private BigDecimal litros;
 
@@ -29,7 +36,7 @@ public class Abastecimento {
     @Column(precision = 10, scale = 3)
     private BigDecimal precoPorLitro;
 
-    /** Calculado no service: litros x preço praticado. */
+    /** Calculado no service: litros x preço praticado, com 2 casas decimais. */
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal valorTotal;
 

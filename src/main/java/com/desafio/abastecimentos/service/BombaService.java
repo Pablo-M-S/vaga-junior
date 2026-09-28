@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+/** Regras de negócio das bombas: nome único e combustível sempre existente. */
 @Service
 public class BombaService {
 
@@ -20,15 +21,18 @@ public class BombaService {
         this.combustivelService = combustivelService;
     }
 
+    /** Devolve todas as bombas cadastradas. */
     public List<Bomba> listar() {
         return repository.findAll();
     }
 
+    /** Busca por id; responde 404 se não existir. */
     public Bomba buscar(Long id) {
         return repository.findById(id).orElseThrow(() ->
             new ResponseStatusException(HttpStatus.NOT_FOUND, "Bomba não encontrada"));
     }
 
+    /** Cria uma bomba. 409 se o nome já existir; 404 se o combustível não existir. */
     public Bomba criar(BombaRequest dados) {
         String nome = dados.nome().trim();
         if (repository.existsByNomeIgnoreCase(nome)) {
@@ -41,6 +45,7 @@ public class BombaService {
         return repository.save(bomba);
     }
 
+    /** Altera nome e combustível. Manter o próprio nome é permitido. */
     public Bomba atualizar(Long id, BombaRequest dados) {
         Bomba existente = buscar(id);
         String nome = dados.nome().trim();
@@ -52,10 +57,12 @@ public class BombaService {
         return repository.save(existente);
     }
 
+    /** Apaga a bomba. Responde 409 se ainda houver abastecimentos ligados a ela. */
     public void deletar(Long id) {
         try {
             repository.delete(buscar(id));
         } catch (DataIntegrityViolationException e) {
+            // o banco recusou por causa da chave estrangeira dos abastecimentos
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Não é possível apagar: o registro está vinculado a outros dados");
         }
     }

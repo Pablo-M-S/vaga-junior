@@ -2,10 +2,14 @@ package com.desafio.abastecimentos.model;
 
 import jakarta.persistence.*;
 
-/** Bomba do posto, vinculada a um tipo de combustível. */
+/**
+ * Bomba do posto, vinculada a um tipo de combustível.
+ * Relacionamento: muitas bombas podem abastecer o mesmo combustível (N para 1).
+ */
 @Entity
 public class Bomba {
 
+    /** Identificador gerado pelo banco (auto incremento). */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -13,6 +17,7 @@ public class Bomba {
     @Column(nullable = false)
     private String nome;
 
+    /** Combustível que a bomba abastece; obrigatório (chave estrangeira combustivel_id). */
     @ManyToOne(optional = false)
     @JoinColumn(name = "combustivel_id")
     private Combustivel combustivel;

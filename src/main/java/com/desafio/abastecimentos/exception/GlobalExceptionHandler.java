@@ -13,13 +13,18 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-/** Padroniza as respostas de erro da API em JSON. */
+/**
+ * Padroniza as respostas de erro 400 da API em JSON, num só lugar.
+ * Os erros 404 e 409 são lançados pelos services (ResponseStatusException)
+ * e usam o formato padrão do Spring.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     /** 400: campos inválidos, indicando qual campo falhou e por quê. */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> validacao(MethodArgumentNotValidException ex) {
+        // mapa campo -> mensagem; putIfAbsent guarda só a primeira mensagem de cada campo
         Map<String, String> campos = new LinkedHashMap<>();
         ex.getBindingResult().getFieldErrors()
             .forEach(e -> campos.putIfAbsent(e.getField(), e.getDefaultMessage()));
@@ -42,6 +47,7 @@ public class GlobalExceptionHandler {
             "Dados inválidos: valor fora do limite permitido"));
     }
 
+    /** Monta o corpo padrão do erro: horário, status, nome do status e mensagem. */
     private Map<String, Object> corpo(HttpStatus status, String mensagem) {
         Map<String, Object> corpo = new LinkedHashMap<>();
         corpo.put("timestamp", LocalDateTime.now().toString());

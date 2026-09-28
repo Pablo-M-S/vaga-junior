@@ -3,10 +3,15 @@ package com.desafio.abastecimentos.model;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 
-/** Tipo de combustível (ex.: Gasolina, Etanol) com preço por litro. */
+/**
+ * Tipo de combustível (ex.: Gasolina, Etanol) com preço por litro.
+ * As regras de validação da entrada ficam no CombustivelRequest;
+ * aqui ficam só o mapeamento para a tabela.
+ */
 @Entity
 public class Combustivel {
 
+    /** Identificador gerado pelo banco (auto incremento). */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -14,6 +19,7 @@ public class Combustivel {
     @Column(nullable = false)
     private String nome;
 
+    /** Preço atual por litro. Guarda 3 casas decimais (mesmo limite do @Digits do DTO). */
     @Column(nullable = false, precision = 10, scale = 3)
     private BigDecimal precoPorLitro;
 
