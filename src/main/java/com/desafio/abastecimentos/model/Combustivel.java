@@ -2,6 +2,7 @@ package com.desafio.abastecimentos.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
@@ -20,6 +21,7 @@ public class Combustivel {
 
     @NotNull
     @DecimalMin(value = "0.01")
+    @Digits(integer = 7, fraction = 3)
     @Column(nullable = false, precision = 10, scale = 3)
     private BigDecimal precoPorLitro;
 

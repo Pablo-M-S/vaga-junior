@@ -45,4 +45,17 @@ class ErrosApiTest {
             .andExpect(jsonPath("$.campos.nome").exists())
             .andExpect(jsonPath("$.campos.precoPorLitro").exists());
     }
+
+    @Test
+    void casasDecimaisEValoresEnormesRetornam400() throws Exception {
+        mvc.perform(post("/combustiveis").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"nome\":\"Gasolina\",\"precoPorLitro\":4.12345}"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.campos.precoPorLitro").exists());
+
+        mvc.perform(post("/combustiveis").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"nome\":\"Gasolina\",\"precoPorLitro\":99999999.99}"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.campos.precoPorLitro").exists());
+    }
 }
