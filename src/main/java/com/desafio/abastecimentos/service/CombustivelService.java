@@ -1,5 +1,6 @@
 package com.desafio.abastecimentos.service;
 
+import com.desafio.abastecimentos.dto.CombustivelRequest;
 import com.desafio.abastecimentos.model.Combustivel;
 import com.desafio.abastecimentos.repository.CombustivelRepository;
 import java.util.List;
@@ -26,15 +27,25 @@ public class CombustivelService {
             new ResponseStatusException(HttpStatus.NOT_FOUND, "Combustível não encontrado"));
     }
 
-    public Combustivel criar(Combustivel combustivel) {
-        combustivel.setId(null);
+    public Combustivel criar(CombustivelRequest dados) {
+        String nome = dados.nome().trim();
+        if (repository.existsByNomeIgnoreCase(nome)) {
+            throw nomeDuplicado();
+        }
+        Combustivel combustivel = new Combustivel();
+        combustivel.setNome(nome);
+        combustivel.setPrecoPorLitro(dados.precoPorLitro());
         return repository.save(combustivel);
     }
 
-    public Combustivel atualizar(Long id, Combustivel dados) {
+    public Combustivel atualizar(Long id, CombustivelRequest dados) {
         Combustivel existente = buscar(id);
-        existente.setNome(dados.getNome());
-        existente.setPrecoPorLitro(dados.getPrecoPorLitro());
+        String nome = dados.nome().trim();
+        if (repository.existsByNomeIgnoreCaseAndIdNot(nome, id)) {
+            throw nomeDuplicado();
+        }
+        existente.setNome(nome);
+        existente.setPrecoPorLitro(dados.precoPorLitro());
         return repository.save(existente);
     }
 
@@ -44,5 +55,9 @@ public class CombustivelService {
         } catch (DataIntegrityViolationException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Não é possível apagar: o registro está vinculado a outros dados");
         }
+    }
+
+    private ResponseStatusException nomeDuplicado() {
+        return new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um combustível com esse nome");
     }
 }

@@ -1,6 +1,7 @@
 package com.desafio.abastecimentos.controller;
 
-import com.desafio.abastecimentos.model.Abastecimento;
+import com.desafio.abastecimentos.dto.AbastecimentoRequest;
+import com.desafio.abastecimentos.dto.AbastecimentoResponse;
 import com.desafio.abastecimentos.service.AbastecimentoService;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
@@ -24,24 +25,28 @@ public class AbastecimentoController {
 
     /** Filtros opcionais: bombaId, de e ate (yyyy-MM-dd). Paginação: page e size. */
     @GetMapping
-    public Page<Abastecimento> listar(
+    public Page<AbastecimentoResponse> listar(
             @RequestParam(required = false) Long bombaId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate de,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ate,
             @PageableDefault(size = 20, sort = "data", direction = Sort.Direction.DESC) Pageable pageable) {
-        return service.listar(bombaId, de, ate, pageable);
+        return service.listar(bombaId, de, ate, pageable).map(AbastecimentoResponse::de);
     }
 
     @GetMapping("/{id}")
-    public Abastecimento buscar(@PathVariable Long id) { return service.buscar(id); }
+    public AbastecimentoResponse buscar(@PathVariable Long id) {
+        return AbastecimentoResponse.de(service.buscar(id));
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Abastecimento criar(@Valid @RequestBody Abastecimento a) { return service.criar(a); }
+    public AbastecimentoResponse criar(@Valid @RequestBody AbastecimentoRequest dados) {
+        return AbastecimentoResponse.de(service.criar(dados));
+    }
 
     @PutMapping("/{id}")
-    public Abastecimento atualizar(@PathVariable Long id, @Valid @RequestBody Abastecimento a) {
-        return service.atualizar(id, a);
+    public AbastecimentoResponse atualizar(@PathVariable Long id, @Valid @RequestBody AbastecimentoRequest dados) {
+        return AbastecimentoResponse.de(service.atualizar(id, dados));
     }
 
     @DeleteMapping("/{id}")

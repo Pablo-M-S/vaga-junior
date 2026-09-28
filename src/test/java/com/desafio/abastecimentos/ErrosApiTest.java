@@ -6,36 +6,29 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-class ErrosApiTest {
-
-    @Autowired
-    private MockMvc mvc;
+class ErrosApiTest extends ApiTestBase {
 
     @Test
     void apagarCombustivelComBombaRetorna409() throws Exception {
-        String resposta = mvc.perform(post("/combustiveis").contentType(MediaType.APPLICATION_JSON)
-                .content("{\"nome\":\"Etanol\",\"precoPorLitro\":3.99}"))
-            .andExpect(status().isCreated())
-            .andReturn().getResponse().getContentAsString();
-        int combustivelId = JsonPath.read(resposta, "$.id");
-
-        mvc.perform(post("/bombas").contentType(MediaType.APPLICATION_JSON)
-                .content("{\"nome\":\"Bomba E\",\"combustivel\":{\"id\":" + combustivelId + "}}"))
-            .andExpect(status().isCreated());
+        int combustivelId = criarCombustivel("Etanol", "3.99");
+        criarBomba("Bomba E", combustivelId);
 
         mvc.perform(delete("/combustiveis/" + combustivelId))
             .andExpect(status().isConflict())
             .andExpect(status().reason("Não é possível apagar: o registro está vinculado a outros dados"));
+    }
+
+    @Test
+    void apagarBombaComAbastecimentoRetorna409() throws Exception {
+        int combustivelId = criarCombustivel("Diesel", "6.10");
+        int bombaId = criarBomba("Bomba D", combustivelId);
+        criarAbastecimento(bombaId, "2026-09-01T10:00:00", "10");
+
+        mvc.perform(delete("/bombas/" + bombaId))
+            .andExpect(status().isConflict());
     }
 
     @Test
@@ -50,12 +43,12 @@ class ErrosApiTest {
     @Test
     void casasDecimaisEValoresEnormesRetornam400() throws Exception {
         mvc.perform(post("/combustiveis").contentType(MediaType.APPLICATION_JSON)
-                .content("{\"nome\":\"Gasolina\",\"precoPorLitro\":4.12345}"))
+                .content(combustivelJson(nomeUnico("Gasolina"), "4.12345")))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.campos.precoPorLitro").exists());
 
         mvc.perform(post("/combustiveis").contentType(MediaType.APPLICATION_JSON)
-                .content("{\"nome\":\"Gasolina\",\"precoPorLitro\":99999999.99}"))
+                .content(combustivelJson(nomeUnico("Gasolina"), "99999999.99")))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.campos.precoPorLitro").exists());
     }

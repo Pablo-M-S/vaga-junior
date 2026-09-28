@@ -1,5 +1,6 @@
 package com.desafio.abastecimentos.service;
 
+import com.desafio.abastecimentos.dto.AbastecimentoRequest;
 import com.desafio.abastecimentos.model.Abastecimento;
 import com.desafio.abastecimentos.model.Bomba;
 import com.desafio.abastecimentos.repository.AbastecimentoRepository;
@@ -48,18 +49,35 @@ public class AbastecimentoService {
             new ResponseStatusException(HttpStatus.NOT_FOUND, "Abastecimento não encontrado"));
     }
 
-    public Abastecimento criar(Abastecimento abastecimento) {
-        abastecimento.setId(null);
-        preencher(abastecimento);
+    /** Guarda o preço do combustível no momento do abastecimento e calcula o valor total. */
+    public Abastecimento criar(AbastecimentoRequest dados) {
+        Bomba bomba = bombaService.buscar(dados.bombaId());
+        Abastecimento abastecimento = new Abastecimento();
+        abastecimento.setBomba(bomba);
+        abastecimento.setData(dados.data());
+        abastecimento.setLitros(dados.litros());
+        abastecimento.setPrecoPorLitro(bomba.getCombustivel().getPrecoPorLitro());
+        abastecimento.setValorTotal(calcularTotal(dados.litros(), abastecimento.getPrecoPorLitro()));
         return repository.save(abastecimento);
     }
 
-    public Abastecimento atualizar(Long id, Abastecimento dados) {
+    /**
+     * Mantém o preço praticado na época. O preço só é atualizado se a bomba mudar
+     * (novo combustível) ou se o registro for antigo e não tiver preço guardado.
+     */
+    public Abastecimento atualizar(Long id, AbastecimentoRequest dados) {
         Abastecimento existente = buscar(id);
-        existente.setBomba(dados.getBomba());
-        existente.setData(dados.getData());
-        existente.setLitros(dados.getLitros());
-        preencher(existente);
+        Bomba bomba = bombaService.buscar(dados.bombaId());
+
+        boolean mesmaBomba = existente.getBomba() != null
+            && existente.getBomba().getId().equals(bomba.getId());
+        if (!mesmaBomba || existente.getPrecoPorLitro() == null) {
+            existente.setPrecoPorLitro(bomba.getCombustivel().getPrecoPorLitro());
+        }
+        existente.setBomba(bomba);
+        existente.setData(dados.data());
+        existente.setLitros(dados.litros());
+        existente.setValorTotal(calcularTotal(dados.litros(), existente.getPrecoPorLitro()));
         return repository.save(existente);
     }
 
@@ -67,15 +85,8 @@ public class AbastecimentoService {
         repository.delete(buscar(id));
     }
 
-    /** Valida a bomba informada e calcula o valor total (litros x preço por litro). */
-    private void preencher(Abastecimento a) {
-        Long bombaId = a.getBomba().getId();
-        if (bombaId == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Informe o id da bomba");
-        }
-        Bomba bomba = bombaService.buscar(bombaId);
-        a.setBomba(bomba);
-        BigDecimal preco = bomba.getCombustivel().getPrecoPorLitro();
-        a.setValorTotal(a.getLitros().multiply(preco).setScale(2, RoundingMode.HALF_UP));
+    /** litros x preço por litro, arredondado a 2 casas. */
+    private BigDecimal calcularTotal(BigDecimal litros, BigDecimal preco) {
+        return litros.multiply(preco).setScale(2, RoundingMode.HALF_UP);
     }
 }

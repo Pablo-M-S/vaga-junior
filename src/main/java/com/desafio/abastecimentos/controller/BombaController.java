@@ -1,6 +1,7 @@
 package com.desafio.abastecimentos.controller;
 
-import com.desafio.abastecimentos.model.Bomba;
+import com.desafio.abastecimentos.dto.BombaRequest;
+import com.desafio.abastecimentos.dto.BombaResponse;
 import com.desafio.abastecimentos.service.BombaService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -18,18 +19,24 @@ public class BombaController {
     }
 
     @GetMapping
-    public List<Bomba> listar() { return service.listar(); }
+    public List<BombaResponse> listar() {
+        return service.listar().stream().map(BombaResponse::de).toList();
+    }
 
     @GetMapping("/{id}")
-    public Bomba buscar(@PathVariable Long id) { return service.buscar(id); }
+    public BombaResponse buscar(@PathVariable Long id) {
+        return BombaResponse.de(service.buscar(id));
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Bomba criar(@Valid @RequestBody Bomba b) { return service.criar(b); }
+    public BombaResponse criar(@Valid @RequestBody BombaRequest dados) {
+        return BombaResponse.de(service.criar(dados));
+    }
 
     @PutMapping("/{id}")
-    public Bomba atualizar(@PathVariable Long id, @Valid @RequestBody Bomba b) {
-        return service.atualizar(id, b);
+    public BombaResponse atualizar(@PathVariable Long id, @Valid @RequestBody BombaRequest dados) {
+        return BombaResponse.de(service.atualizar(id, dados));
     }
 
     @DeleteMapping("/{id}")

@@ -1,6 +1,7 @@
 package com.desafio.abastecimentos.controller;
 
-import com.desafio.abastecimentos.model.Combustivel;
+import com.desafio.abastecimentos.dto.CombustivelRequest;
+import com.desafio.abastecimentos.dto.CombustivelResponse;
 import com.desafio.abastecimentos.service.CombustivelService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -18,18 +19,24 @@ public class CombustivelController {
     }
 
     @GetMapping
-    public List<Combustivel> listar() { return service.listar(); }
+    public List<CombustivelResponse> listar() {
+        return service.listar().stream().map(CombustivelResponse::de).toList();
+    }
 
     @GetMapping("/{id}")
-    public Combustivel buscar(@PathVariable Long id) { return service.buscar(id); }
+    public CombustivelResponse buscar(@PathVariable Long id) {
+        return CombustivelResponse.de(service.buscar(id));
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Combustivel criar(@Valid @RequestBody Combustivel c) { return service.criar(c); }
+    public CombustivelResponse criar(@Valid @RequestBody CombustivelRequest dados) {
+        return CombustivelResponse.de(service.criar(dados));
+    }
 
     @PutMapping("/{id}")
-    public Combustivel atualizar(@PathVariable Long id, @Valid @RequestBody Combustivel c) {
-        return service.atualizar(id, c);
+    public CombustivelResponse atualizar(@PathVariable Long id, @Valid @RequestBody CombustivelRequest dados) {
+        return CombustivelResponse.de(service.atualizar(id, dados));
     }
 
     @DeleteMapping("/{id}")

@@ -1,8 +1,6 @@
 package com.desafio.abastecimentos.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 /** Bomba do posto, vinculada a um tipo de combustível. */
 @Entity
@@ -12,11 +10,9 @@ public class Bomba {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
     @Column(nullable = false)
     private String nome;
 
-    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "combustivel_id")
     private Combustivel combustivel;

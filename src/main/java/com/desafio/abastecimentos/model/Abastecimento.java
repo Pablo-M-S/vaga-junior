@@ -1,9 +1,6 @@
 package com.desafio.abastecimentos.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -15,22 +12,24 @@ public class Abastecimento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "bomba_id")
     private Bomba bomba;
 
-    @NotNull
     @Column(nullable = false)
     private LocalDateTime data;
 
-    @NotNull
-    @DecimalMin(value = "0.01")
-    @Digits(integer = 7, fraction = 3)
     @Column(nullable = false, precision = 10, scale = 3)
     private BigDecimal litros;
 
-    /** Calculado no service: litros x preço por litro do combustível da bomba. */
+    /**
+     * Preço por litro praticado no momento do abastecimento (cópia do preço do
+     * combustível). Fica nulo apenas em registros antigos, criados antes deste campo.
+     */
+    @Column(precision = 10, scale = 3)
+    private BigDecimal precoPorLitro;
+
+    /** Calculado no service: litros x preço praticado. */
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal valorTotal;
 
@@ -42,6 +41,8 @@ public class Abastecimento {
     public void setData(LocalDateTime data) { this.data = data; }
     public BigDecimal getLitros() { return litros; }
     public void setLitros(BigDecimal litros) { this.litros = litros; }
+    public BigDecimal getPrecoPorLitro() { return precoPorLitro; }
+    public void setPrecoPorLitro(BigDecimal precoPorLitro) { this.precoPorLitro = precoPorLitro; }
     public BigDecimal getValorTotal() { return valorTotal; }
     public void setValorTotal(BigDecimal valorTotal) { this.valorTotal = valorTotal; }
 }

@@ -1,7 +1,7 @@
 package com.desafio.abastecimentos.service;
 
+import com.desafio.abastecimentos.dto.BombaRequest;
 import com.desafio.abastecimentos.model.Bomba;
-import com.desafio.abastecimentos.model.Combustivel;
 import com.desafio.abastecimentos.repository.BombaRepository;
 import java.util.List;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -29,16 +29,26 @@ public class BombaService {
             new ResponseStatusException(HttpStatus.NOT_FOUND, "Bomba não encontrada"));
     }
 
-    public Bomba criar(Bomba bomba) {
-        bomba.setId(null);
-        bomba.setCombustivel(resolverCombustivel(bomba));
+    public Bomba criar(BombaRequest dados) {
+        String nome = dados.nome().trim();
+        if (repository.existsByNomeIgnoreCase(nome)) {
+            throw nomeDuplicado();
+        }
+        Bomba bomba = new Bomba();
+        bomba.setNome(nome);
+        // buscar() responde 404 se o combustível não existir
+        bomba.setCombustivel(combustivelService.buscar(dados.combustivelId()));
         return repository.save(bomba);
     }
 
-    public Bomba atualizar(Long id, Bomba dados) {
+    public Bomba atualizar(Long id, BombaRequest dados) {
         Bomba existente = buscar(id);
-        existente.setNome(dados.getNome());
-        existente.setCombustivel(resolverCombustivel(dados));
+        String nome = dados.nome().trim();
+        if (repository.existsByNomeIgnoreCaseAndIdNot(nome, id)) {
+            throw nomeDuplicado();
+        }
+        existente.setNome(nome);
+        existente.setCombustivel(combustivelService.buscar(dados.combustivelId()));
         return repository.save(existente);
     }
 
@@ -50,12 +60,7 @@ public class BombaService {
         }
     }
 
-    /** Garante que o combustível informado existe (retorna 404 se não existir). */
-    private Combustivel resolverCombustivel(Bomba bomba) {
-        Long combustivelId = bomba.getCombustivel().getId();
-        if (combustivelId == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Informe o id do combustível");
-        }
-        return combustivelService.buscar(combustivelId);
+    private ResponseStatusException nomeDuplicado() {
+        return new ResponseStatusException(HttpStatus.CONFLICT, "Já existe uma bomba com esse nome");
     }
 }

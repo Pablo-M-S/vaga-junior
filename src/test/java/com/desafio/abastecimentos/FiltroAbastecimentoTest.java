@@ -1,39 +1,20 @@
 package com.desafio.abastecimentos;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-class FiltroAbastecimentoTest {
-
-    @Autowired
-    private MockMvc mvc;
-
-    private int criar(String url, String json) throws Exception {
-        String resposta = mvc.perform(post(url).contentType(MediaType.APPLICATION_JSON).content(json))
-            .andExpect(status().isCreated())
-            .andReturn().getResponse().getContentAsString();
-        return JsonPath.read(resposta, "$.id");
-    }
+class FiltroAbastecimentoTest extends ApiTestBase {
 
     @Test
     void filtraPorBombaEPeriodo() throws Exception {
-        int combustivelId = criar("/combustiveis", "{\"nome\":\"Diesel\",\"precoPorLitro\":6.10}");
-        int bombaId = criar("/bombas", "{\"nome\":\"Bomba D\",\"combustivel\":{\"id\":" + combustivelId + "}}");
+        int combustivelId = criarCombustivel("Diesel", "6.10");
+        int bombaId = criarBomba("Bomba D", combustivelId);
 
-        criar("/abastecimentos", "{\"bomba\":{\"id\":" + bombaId + "},\"data\":\"2026-09-10T10:00:00\",\"litros\":10}");
-        criar("/abastecimentos", "{\"bomba\":{\"id\":" + bombaId + "},\"data\":\"2026-09-20T10:00:00\",\"litros\":5}");
+        criarAbastecimento(bombaId, "2026-09-10T10:00:00", "10");
+        criarAbastecimento(bombaId, "2026-09-20T10:00:00", "5");
 
         mvc.perform(get("/abastecimentos")
                 .param("bombaId", String.valueOf(bombaId))
@@ -46,10 +27,10 @@ class FiltroAbastecimentoTest {
 
     @Test
     void paginaOsResultados() throws Exception {
-        int combustivelId = criar("/combustiveis", "{\"nome\":\"Etanol\",\"precoPorLitro\":4.50}");
-        int bombaId = criar("/bombas", "{\"nome\":\"Bomba E\",\"combustivel\":{\"id\":" + combustivelId + "}}");
-        criar("/abastecimentos", "{\"bomba\":{\"id\":" + bombaId + "},\"data\":\"2026-09-10T10:00:00\",\"litros\":10}");
-        criar("/abastecimentos", "{\"bomba\":{\"id\":" + bombaId + "},\"data\":\"2026-09-11T10:00:00\",\"litros\":5}");
+        int combustivelId = criarCombustivel("Etanol", "4.50");
+        int bombaId = criarBomba("Bomba E", combustivelId);
+        criarAbastecimento(bombaId, "2026-09-10T10:00:00", "10");
+        criarAbastecimento(bombaId, "2026-09-11T10:00:00", "5");
 
         mvc.perform(get("/abastecimentos")
                 .param("bombaId", String.valueOf(bombaId))
