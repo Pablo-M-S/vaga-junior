@@ -1,5 +1,10 @@
 # Desafio Técnico - Cadastro e Consulta de Abastecimentos
 
+
+
+
+
+
 API REST em Java para cadastro e consulta de abastecimentos de um posto de combustível.
 
 **Stack:** Java 17, Spring Boot 3, Spring Data JPA, Bean Validation, H2 (em arquivo) e Maven.
