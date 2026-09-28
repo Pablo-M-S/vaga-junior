@@ -46,3 +46,5 @@ Exemplo de resposta de um abastecimento de 10 litros com gasolina a 5,89: o camp
     service/      regras de negócio (cálculo do valor total)
     repository/   acesso ao banco (Spring Data JPA)
     model/        entidades JPA
+
+Documentação interativa (Swagger): http://localhost:8080/swagger-ui/index.html
