@@ -10,5 +10,5 @@ API em http://localhost:8080 · Console H2 em /h2-console (jdbc:h2:file:./data/a
 
 ## Endpoints
 - `/combustiveis` – GET, GET/{id}, POST, PUT/{id}, DELETE/{id}
-- `/bombas` – (a fazer)
+- `/bombas` – GET, GET/{id}, POST, PUT/{id}, DELETE/{id} (envie `{"nome":"Bomba 1","combustivel":{"id":1}}`)
 - `/abastecimentos` – (a fazer)
