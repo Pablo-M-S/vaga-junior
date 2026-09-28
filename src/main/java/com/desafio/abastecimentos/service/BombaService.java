@@ -4,6 +4,7 @@ import com.desafio.abastecimentos.model.Bomba;
 import com.desafio.abastecimentos.model.Combustivel;
 import com.desafio.abastecimentos.repository.BombaRepository;
 import java.util.List;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -42,7 +43,11 @@ public class BombaService {
     }
 
     public void deletar(Long id) {
-        repository.delete(buscar(id));
+        try {
+            repository.delete(buscar(id));
+        } catch (DataIntegrityViolationException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Não é possível apagar: o registro está vinculado a outros dados");
+        }
     }
 
     /** Garante que o combustível informado existe (retorna 404 se não existir). */

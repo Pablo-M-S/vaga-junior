@@ -33,11 +33,11 @@ public class GlobalExceptionHandler {
             .body(corpo(HttpStatus.BAD_REQUEST, "Corpo da requisição inválido ou mal formatado"));
     }
 
-    /** 409: tentativa de apagar um registro que ainda é usado por outro. */
+    /** 400: violação de restrição do banco (ex.: valor maior que a coluna aceita). */
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<Map<String, Object>> conflito(DataIntegrityViolationException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(corpo(HttpStatus.CONFLICT,
-            "Operação não permitida: o registro está vinculado a outros dados"));
+    public ResponseEntity<Map<String, Object>> violacaoDeRestricao(DataIntegrityViolationException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(corpo(HttpStatus.BAD_REQUEST,
+            "Dados inválidos: valor fora do limite permitido"));
     }
 
     private Map<String, Object> corpo(HttpStatus status, String mensagem) {

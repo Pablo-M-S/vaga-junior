@@ -34,7 +34,7 @@ class ErrosApiTest {
 
         mvc.perform(delete("/combustiveis/" + combustivelId))
             .andExpect(status().isConflict())
-            .andExpect(jsonPath("$.status").value(409));
+            .andExpect(status().reason("Não é possível apagar: o registro está vinculado a outros dados"));
     }
 
     @Test
