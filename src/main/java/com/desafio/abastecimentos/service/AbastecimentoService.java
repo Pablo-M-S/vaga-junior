@@ -5,7 +5,11 @@ import com.desafio.abastecimentos.model.Bomba;
 import com.desafio.abastecimentos.repository.AbastecimentoRepository;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -21,8 +25,22 @@ public class AbastecimentoService {
         this.bombaService = bombaService;
     }
 
-    public List<Abastecimento> listar() {
-        return repository.findAll();
+    /** Lista com filtros opcionais (bomba e período, inclusive) e paginação. */
+    public Page<Abastecimento> listar(Long bombaId, LocalDate de, LocalDate ate, Pageable pageable) {
+        Specification<Abastecimento> spec = Specification.where(null);
+        if (bombaId != null) {
+            spec = spec.and((raiz, q, cb) -> cb.equal(raiz.get("bomba").get("id"), bombaId));
+        }
+        if (de != null) {
+            LocalDateTime inicio = de.atStartOfDay();
+            spec = spec.and((raiz, q, cb) ->
+                cb.greaterThanOrEqualTo(raiz.<LocalDateTime>get("data"), inicio));
+        }
+        if (ate != null) {
+            LocalDateTime fim = ate.plusDays(1).atStartOfDay();
+            spec = spec.and((raiz, q, cb) -> cb.lessThan(raiz.<LocalDateTime>get("data"), fim));
+        }
+        return repository.findAll(spec, pageable);
     }
 
     public Abastecimento buscar(Long id) {

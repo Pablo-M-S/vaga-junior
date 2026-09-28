@@ -48,3 +48,9 @@ Exemplo de resposta de um abastecimento de 10 litros com gasolina a 5,89: o camp
     model/        entidades JPA
 
 Documentação interativa (Swagger): http://localhost:8080/swagger-ui/index.html
+
+## Consulta com filtros e paginação
+
+    GET /abastecimentos?bombaId=1&de=2026-09-01&ate=2026-09-30&page=0&size=10
+
+Todos os parâmetros são opcionais. As datas usam o formato yyyy-MM-dd (período inclusivo) e o resultado vem ordenado do mais recente para o mais antigo, dentro de um objeto de página com os campos content e page.

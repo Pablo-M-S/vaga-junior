@@ -3,7 +3,12 @@ package com.desafio.abastecimentos.controller;
 import com.desafio.abastecimentos.model.Abastecimento;
 import com.desafio.abastecimentos.service.AbastecimentoService;
 import jakarta.validation.Valid;
-import java.util.List;
+import java.time.LocalDate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,8 +22,15 @@ public class AbastecimentoController {
         this.service = service;
     }
 
+    /** Filtros opcionais: bombaId, de e ate (yyyy-MM-dd). Paginação: page e size. */
     @GetMapping
-    public List<Abastecimento> listar() { return service.listar(); }
+    public Page<Abastecimento> listar(
+            @RequestParam(required = false) Long bombaId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate de,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ate,
+            @PageableDefault(size = 20, sort = "data", direction = Sort.Direction.DESC) Pageable pageable) {
+        return service.listar(bombaId, de, ate, pageable);
+    }
 
     @GetMapping("/{id}")
     public Abastecimento buscar(@PathVariable Long id) { return service.buscar(id); }
