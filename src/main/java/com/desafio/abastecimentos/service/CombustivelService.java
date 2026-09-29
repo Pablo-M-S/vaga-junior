@@ -37,7 +37,7 @@ public class CombustivelService {
         Combustivel combustivel = new Combustivel();
         combustivel.setNome(nome);
         combustivel.setPrecoPorLitro(dados.precoPorLitro());
-        return repository.save(combustivel);
+        return salvar(combustivel);
     }
 
     /**
@@ -53,7 +53,7 @@ public class CombustivelService {
         }
         existente.setNome(nome);
         existente.setPrecoPorLitro(dados.precoPorLitro());
-        return repository.save(existente);
+        return salvar(existente);
     }
 
     /** Apaga o combustível. Responde 409 se alguma bomba ainda estiver ligada a ele. */
@@ -63,6 +63,25 @@ public class CombustivelService {
         } catch (DataIntegrityViolationException e) {
             // o banco recusou por causa da chave estrangeira das bombas
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Não é possível apagar: o registro está vinculado a outros dados");
+        }
+    }
+
+    /**
+     * Salva o combustível. Se duas requisições com o mesmo nome chegarem juntas, as duas passam
+     * pela checagem do service e a restrição única do banco barra a segunda: aí responde 409.
+     */
+    private Combustivel salvar(Combustivel combustivel) {
+        try {
+            return repository.save(combustivel);
+        } catch (DataIntegrityViolationException e) {
+            String nome = combustivel.getNome();
+            boolean nomeRepetido = combustivel.getId() == null
+                ? repository.existsByNomeIgnoreCase(nome)
+                : repository.existsByNomeIgnoreCaseAndIdNot(nome, combustivel.getId());
+            if (nomeRepetido) {
+                throw nomeDuplicado();
+            }
+            throw e;
         }
     }
 

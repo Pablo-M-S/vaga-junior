@@ -9,7 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
-/** Erros padronizados da API: 400 (validação e parâmetros) e 409 (vínculos). */
+/** Erros padronizados da API: 400 (validação e parâmetros), 404 e 409 (vínculos). */
 class ErrosApiTest extends ApiTestBase {
 
     @Test
@@ -19,7 +19,7 @@ class ErrosApiTest extends ApiTestBase {
 
         mvc.perform(delete("/combustiveis/" + combustivelId))
             .andExpect(status().isConflict())
-            .andExpect(status().reason("Não é possível apagar: o registro está vinculado a outros dados"));
+            .andExpect(jsonPath("$.mensagem").value("Não é possível apagar: o registro está vinculado a outros dados"));
     }
 
     @Test
@@ -67,5 +67,24 @@ class ErrosApiTest extends ApiTestBase {
         mvc.perform(get("/abastecimentos/abc"))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.status").value(400));
+    }
+
+    @Test
+    void erros404e409UsamOMesmoFormatoDos400() throws Exception {
+        mvc.perform(get("/bombas/999999"))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.status").value(404))
+            .andExpect(jsonPath("$.erro").value("Not Found"))
+            .andExpect(jsonPath("$.mensagem").value("Bomba não encontrada"))
+            .andExpect(jsonPath("$.timestamp").exists());
+
+        String nome = nomeUnico("Gasolina");
+        criar("/combustiveis", combustivelJson(nome, "5.89"));
+        mvc.perform(post("/combustiveis").contentType(MediaType.APPLICATION_JSON)
+                .content(combustivelJson(nome, "6.00")))
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.status").value(409))
+            .andExpect(jsonPath("$.erro").value("Conflict"))
+            .andExpect(jsonPath("$.mensagem").value("Já existe um combustível com esse nome"));
     }
 }

@@ -130,4 +130,39 @@ class BombaServiceTest {
 
         assertEquals(HttpStatus.CONFLICT, erro.getStatusCode());
     }
+
+    @Test
+    void criarComNomeRepetidoPorRequisicaoSimultaneaLanca409() {
+        when(combustivelService.buscar(1L)).thenReturn(combustivel(1L));
+        // a checagem inicial passa; a restrição única do banco barra o save; depois o nome já existe
+        when(repository.existsByNomeIgnoreCase("Bomba 1")).thenReturn(false, true);
+        when(repository.save(any(Bomba.class))).thenThrow(new DataIntegrityViolationException("unique"));
+
+        ResponseStatusException erro = assertThrows(ResponseStatusException.class,
+            () -> service.criar(new BombaRequest("Bomba 1", 1L)));
+
+        assertEquals(HttpStatus.CONFLICT, erro.getStatusCode());
+    }
+
+    @Test
+    void atualizarComNomeRepetidoPorRequisicaoSimultaneaLanca409() {
+        when(repository.findById(1L)).thenReturn(Optional.of(bomba(1L, "Bomba 1", combustivel(1L))));
+        when(combustivelService.buscar(1L)).thenReturn(combustivel(1L));
+        when(repository.existsByNomeIgnoreCaseAndIdNot("Bomba 2", 1L)).thenReturn(false, true);
+        when(repository.save(any(Bomba.class))).thenThrow(new DataIntegrityViolationException("unique"));
+
+        ResponseStatusException erro = assertThrows(ResponseStatusException.class,
+            () -> service.atualizar(1L, new BombaRequest("Bomba 2", 1L)));
+
+        assertEquals(HttpStatus.CONFLICT, erro.getStatusCode());
+    }
+
+    @Test
+    void violacaoDoBancoSemNomeRepetidoNaoVira409() {
+        when(combustivelService.buscar(1L)).thenReturn(combustivel(1L));
+        when(repository.save(any(Bomba.class))).thenThrow(new DataIntegrityViolationException("outra"));
+
+        assertThrows(DataIntegrityViolationException.class,
+            () -> service.criar(new BombaRequest("Bomba 1", 1L)));
+    }
 }

@@ -13,7 +13,8 @@ public class Bomba {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    /** Único no banco; o service confere antes para responder com uma mensagem clara. */
+    @Column(nullable = false, unique = true)
     private String nome;
 
     @ManyToOne(optional = false)

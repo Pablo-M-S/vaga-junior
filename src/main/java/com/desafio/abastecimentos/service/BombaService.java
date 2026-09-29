@@ -40,7 +40,7 @@ public class BombaService {
         bomba.setNome(nome);
         // buscar() responde 404 se o combustível não existir
         bomba.setCombustivel(combustivelService.buscar(dados.combustivelId()));
-        return repository.save(bomba);
+        return salvar(bomba);
     }
 
     /** Altera nome e combustível. Manter o próprio nome é permitido. */
@@ -52,7 +52,7 @@ public class BombaService {
         }
         existente.setNome(nome);
         existente.setCombustivel(combustivelService.buscar(dados.combustivelId()));
-        return repository.save(existente);
+        return salvar(existente);
     }
 
     /** Apaga a bomba. Responde 409 se ainda houver abastecimentos ligados a ela. */
@@ -62,6 +62,25 @@ public class BombaService {
         } catch (DataIntegrityViolationException e) {
             // o banco recusou por causa da chave estrangeira dos abastecimentos
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Não é possível apagar: o registro está vinculado a outros dados");
+        }
+    }
+
+    /**
+     * Salva a bomba. Se duas requisições com o mesmo nome chegarem juntas, as duas passam
+     * pela checagem do service e a restrição única do banco barra a segunda: aí responde 409.
+     */
+    private Bomba salvar(Bomba bomba) {
+        try {
+            return repository.save(bomba);
+        } catch (DataIntegrityViolationException e) {
+            String nome = bomba.getNome();
+            boolean nomeRepetido = bomba.getId() == null
+                ? repository.existsByNomeIgnoreCase(nome)
+                : repository.existsByNomeIgnoreCaseAndIdNot(nome, bomba.getId());
+            if (nomeRepetido) {
+                throw nomeDuplicado();
+            }
+            throw e;
         }
     }
 

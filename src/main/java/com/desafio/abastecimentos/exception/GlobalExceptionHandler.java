@@ -13,14 +13,23 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
- * Padroniza as respostas de erro 400 da API em JSON, num só lugar.
- * Os erros 404 e 409 são lançados pelos services (ResponseStatusException)
- * e usam o formato padrão do Spring.
+ * Padroniza as respostas de erro da API em JSON, num só lugar: timestamp, status, erro e mensagem.
+ * Os 400 de validação acrescentam o mapa "campos". Os 404 e 409 são lançados pelos
+ * services (ResponseStatusException) e saem no mesmo formato.
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    /** 404, 409 e demais erros de negócio lançados pelos services. */
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<Map<String, Object>> erroDeNegocio(ResponseStatusException ex) {
+        HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
+        String mensagem = ex.getReason() != null ? ex.getReason() : status.getReasonPhrase();
+        return ResponseEntity.status(status).body(corpo(status, mensagem));
+    }
 
     /** 400: campos inválidos, indicando qual campo falhou e por quê. */
     @ExceptionHandler(MethodArgumentNotValidException.class)

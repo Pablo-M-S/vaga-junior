@@ -113,4 +113,36 @@ class CombustivelServiceTest {
 
         verify(repository).delete(existente);
     }
+
+    @Test
+    void criarComNomeRepetidoPorRequisicaoSimultaneaLanca409() {
+        // a checagem inicial passa; a restrição única do banco barra o save; depois o nome já existe
+        when(repository.existsByNomeIgnoreCase("Gasolina")).thenReturn(false, true);
+        when(repository.save(any(Combustivel.class))).thenThrow(new DataIntegrityViolationException("unique"));
+
+        ResponseStatusException erro = assertThrows(ResponseStatusException.class,
+            () -> service.criar(new CombustivelRequest("Gasolina", new BigDecimal("5.89"))));
+
+        assertEquals(HttpStatus.CONFLICT, erro.getStatusCode());
+    }
+
+    @Test
+    void atualizarComNomeRepetidoPorRequisicaoSimultaneaLanca409() {
+        when(repository.findById(1L)).thenReturn(Optional.of(combustivel(1L, "Etanol", "3.99")));
+        when(repository.existsByNomeIgnoreCaseAndIdNot("Gasolina", 1L)).thenReturn(false, true);
+        when(repository.save(any(Combustivel.class))).thenThrow(new DataIntegrityViolationException("unique"));
+
+        ResponseStatusException erro = assertThrows(ResponseStatusException.class,
+            () -> service.atualizar(1L, new CombustivelRequest("Gasolina", new BigDecimal("5.89"))));
+
+        assertEquals(HttpStatus.CONFLICT, erro.getStatusCode());
+    }
+
+    @Test
+    void violacaoDoBancoSemNomeRepetidoNaoVira409() {
+        when(repository.save(any(Combustivel.class))).thenThrow(new DataIntegrityViolationException("outra"));
+
+        assertThrows(DataIntegrityViolationException.class,
+            () -> service.criar(new CombustivelRequest("Gasolina", new BigDecimal("5.89"))));
+    }
 }
