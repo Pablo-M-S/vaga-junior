@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface BombaRepository extends JpaRepository<Bomba, Long> {
 
-    /** Já existe uma bomba com esse nome (sem diferenciar maiúsculas de minúsculas)? */
     boolean existsByNomeIgnoreCase(String nome);
 
     /** Usado no PUT: outra bomba (id diferente) já tem esse nome? */

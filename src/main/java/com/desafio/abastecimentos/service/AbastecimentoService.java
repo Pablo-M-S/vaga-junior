@@ -22,12 +22,9 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class AbastecimentoService {
 
-    /** Acesso ao banco para abastecimentos. */
     private final AbastecimentoRepository repository;
-    /** Usado para conferir se a bomba informada existe. */
     private final BombaService bombaService;
 
-    /** Recebe as dependências por construtor (injeção feita pelo Spring). */
     public AbastecimentoService(AbastecimentoRepository repository, BombaService bombaService) {
         this.repository = repository;
         this.bombaService = bombaService;
@@ -57,7 +54,6 @@ public class AbastecimentoService {
         return repository.findAll(spec, pageable);
     }
 
-    /** Busca por id; responde 404 se não existir. */
     public Abastecimento buscar(Long id) {
         return repository.findById(id).orElseThrow(() ->
             new ResponseStatusException(HttpStatus.NOT_FOUND, "Abastecimento não encontrado"));
@@ -98,7 +94,6 @@ public class AbastecimentoService {
         return repository.save(existente);
     }
 
-    /** Apaga o abastecimento; responde 404 se não existir. */
     public void deletar(Long id) {
         repository.delete(buscar(id));
     }

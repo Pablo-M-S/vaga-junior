@@ -14,10 +14,8 @@ import org.springframework.http.MediaType;
 /** GET por id, PUT, DELETE, preço praticado e data futura em abastecimentos. */
 class AbastecimentoCrudTest extends ApiTestBase {
 
-    /** Data fixa (no passado) usada nos abastecimentos criados pelos testes. */
     private static final String DATA = "2026-09-01T10:00:00";
 
-    /** GET por id devolve bomba, litros e valor total. */
     @Test
     void buscaPorId() throws Exception {
         int bombaId = criarBomba("Bomba 1", criarCombustivel("Gasolina", "5.89"));
@@ -31,14 +29,12 @@ class AbastecimentoCrudTest extends ApiTestBase {
             .andExpect(jsonPath("$.valorTotal").value(58.90));
     }
 
-    /** GET de abastecimento que não existe responde 404. */
     @Test
     void buscaPorIdInexistenteRetorna404() throws Exception {
         mvc.perform(get("/abastecimentos/999999"))
             .andExpect(status().isNotFound());
     }
 
-    /** PUT com novos litros e data recalcula o valor total. */
     @Test
     void atualizaLitrosERecalculaOTotal() throws Exception {
         int bombaId = criarBomba("Bomba 1", criarCombustivel("Gasolina", "5.00"));
@@ -52,7 +48,6 @@ class AbastecimentoCrudTest extends ApiTestBase {
             .andExpect(jsonPath("$.data").value("2026-09-02T11:30:00"));
     }
 
-    /** Reajuste do combustível não muda abastecimentos antigos; os novos usam o preço atual. */
     @Test
     void reajusteDoCombustivelNaoAlteraOHistorico() throws Exception {
         int combustivelId = criarCombustivel("Gasolina", "5.00");
@@ -82,7 +77,6 @@ class AbastecimentoCrudTest extends ApiTestBase {
             .andExpect(jsonPath("$.valorTotal").value(60.0));
     }
 
-    /** Ao trocar de bomba no PUT, o preço passa a ser o do novo combustível. */
     @Test
     void trocarDeBombaUsaOPrecoDoNovoCombustivel() throws Exception {
         int bombaGasolina = criarBomba("Gasolina", criarCombustivel("Gasolina", "5.00"));
@@ -97,7 +91,6 @@ class AbastecimentoCrudTest extends ApiTestBase {
             .andExpect(jsonPath("$.valorTotal").value(40.0));
     }
 
-    /** PUT em abastecimento que não existe responde 404. */
     @Test
     void atualizarInexistenteRetorna404() throws Exception {
         int bombaId = criarBomba("Bomba 1", criarCombustivel("Gasolina", "5.00"));
@@ -107,7 +100,6 @@ class AbastecimentoCrudTest extends ApiTestBase {
             .andExpect(status().isNotFound());
     }
 
-    /** DELETE responde 204 e libera a bomba para ser apagada. */
     @Test
     void apagaAbastecimento() throws Exception {
         int bombaId = criarBomba("Bomba 1", criarCombustivel("Gasolina", "5.00"));
@@ -124,14 +116,12 @@ class AbastecimentoCrudTest extends ApiTestBase {
             .andExpect(status().isNoContent());
     }
 
-    /** DELETE de abastecimento que não existe responde 404. */
     @Test
     void apagarInexistenteRetorna404() throws Exception {
         mvc.perform(delete("/abastecimentos/999999"))
             .andExpect(status().isNotFound());
     }
 
-    /** Data no futuro é recusada com 400. */
     @Test
     void dataNoFuturoRetorna400() throws Exception {
         int bombaId = criarBomba("Bomba 1", criarCombustivel("Gasolina", "5.00"));

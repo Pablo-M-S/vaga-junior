@@ -13,19 +13,13 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * Rotas REST de abastecimentos (/abastecimentos).
- * O controller só recebe a requisição, aciona o service e converte o resultado
- * para o DTO de resposta; as regras (preço praticado, valor total) ficam no service.
- */
+/** Rotas REST de abastecimentos (/abastecimentos). Preço praticado e valor total são calculados no service. */
 @RestController
 @RequestMapping("/abastecimentos")
 public class AbastecimentoController {
 
-    /** Regras de negócio deste recurso; o controller só delega. */
     private final AbastecimentoService service;
 
-    /** Recebe o service por construtor (injeção feita pelo Spring). */
     public AbastecimentoController(AbastecimentoService service) {
         this.service = service;
     }
@@ -44,13 +38,11 @@ public class AbastecimentoController {
         return service.listar(bombaId, de, ate, pageable).map(AbastecimentoResponse::de);
     }
 
-    /** GET /abastecimentos/{id}: busca um (404 se não existir). */
     @GetMapping("/{id}")
     public AbastecimentoResponse buscar(@PathVariable Long id) {
         return AbastecimentoResponse.de(service.buscar(id));
     }
 
-    /** POST /abastecimentos: cria (201). Preço praticado e valor total voltam calculados. */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public AbastecimentoResponse criar(@Valid @RequestBody AbastecimentoRequest dados) {
@@ -63,7 +55,6 @@ public class AbastecimentoController {
         return AbastecimentoResponse.de(service.atualizar(id, dados));
     }
 
-    /** DELETE /abastecimentos/{id}: apaga (204). */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletar(@PathVariable Long id) { service.deletar(id); }

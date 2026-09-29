@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface CombustivelRepository extends JpaRepository<Combustivel, Long> {
 
-    /** Já existe um combustível com esse nome (sem diferenciar maiúsculas de minúsculas)? */
     boolean existsByNomeIgnoreCase(String nome);
 
     /** Usado no PUT: outro combustível (id diferente) já tem esse nome? */

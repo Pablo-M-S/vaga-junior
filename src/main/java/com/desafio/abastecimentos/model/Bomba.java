@@ -9,16 +9,13 @@ import jakarta.persistence.*;
 @Entity
 public class Bomba {
 
-    /** Identificador gerado pelo banco (auto incremento). */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** Nome da bomba (ex.: "Bomba 1"); obrigatório e único, conferido no service. */
     @Column(nullable = false)
     private String nome;
 
-    /** Combustível que a bomba abastece; obrigatório (chave estrangeira combustivel_id). */
     @ManyToOne(optional = false)
     @JoinColumn(name = "combustivel_id")
     private Combustivel combustivel;

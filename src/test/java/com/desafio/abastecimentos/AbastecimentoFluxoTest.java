@@ -10,7 +10,6 @@ import org.springframework.http.MediaType;
 /** Fluxo principal: cadastrar combustível, bomba e abastecimento com o total calculado. */
 class AbastecimentoFluxoTest extends ApiTestBase {
 
-    /** 10 litros a 5,89 devem resultar em valor total 58,90 e preço praticado 5,89. */
     @Test
     void calculaValorTotalDoAbastecimento() throws Exception {
         int combustivelId = criarCombustivel("Gasolina", "5.89");
@@ -23,7 +22,6 @@ class AbastecimentoFluxoTest extends ApiTestBase {
             .andExpect(jsonPath("$.precoPorLitro").value(5.89));
     }
 
-    /** Abastecimento em bomba que não existe responde 404. */
     @Test
     void bombaInexistenteRetorna404() throws Exception {
         mvc.perform(post("/abastecimentos").contentType(MediaType.APPLICATION_JSON)
@@ -31,7 +29,6 @@ class AbastecimentoFluxoTest extends ApiTestBase {
             .andExpect(status().isNotFound());
     }
 
-    /** Combustível com nome vazio e preço negativo responde 400. */
     @Test
     void combustivelInvalidoRetorna400() throws Exception {
         mvc.perform(post("/combustiveis").contentType(MediaType.APPLICATION_JSON)

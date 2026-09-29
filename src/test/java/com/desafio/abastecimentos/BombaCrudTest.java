@@ -13,7 +13,6 @@ import org.springframework.http.MediaType;
 /** POST com combustível inválido, GET por id, GET lista, PUT e DELETE de bombas. */
 class BombaCrudTest extends ApiTestBase {
 
-    /** GET por id devolve a bomba junto com o combustível que ela abastece. */
     @Test
     void buscaPorIdComOCombustivel() throws Exception {
         int combustivelId = criarCombustivel("Gasolina", "5.89");
@@ -27,14 +26,12 @@ class BombaCrudTest extends ApiTestBase {
             .andExpect(jsonPath("$.combustivel.id").value(combustivelId));
     }
 
-    /** GET de bomba que não existe responde 404. */
     @Test
     void buscaPorIdInexistenteRetorna404() throws Exception {
         mvc.perform(get("/bombas/999999"))
             .andExpect(status().isNotFound());
     }
 
-    /** GET /bombas lista as bombas cadastradas. */
     @Test
     void listaBombas() throws Exception {
         criarBomba("Lista", criarCombustivel("Lista", "4.00"));
@@ -44,7 +41,6 @@ class BombaCrudTest extends ApiTestBase {
             .andExpect(jsonPath("$").isArray());
     }
 
-    /** Criar bomba com combustivelId que não existe responde 404. */
     @Test
     void criarComCombustivelInexistenteRetorna404() throws Exception {
         mvc.perform(post("/bombas").contentType(MediaType.APPLICATION_JSON)
@@ -52,7 +48,6 @@ class BombaCrudTest extends ApiTestBase {
             .andExpect(status().isNotFound());
     }
 
-    /** Criar bomba sem informar o combustível responde 400. */
     @Test
     void criarSemCombustivelRetorna400() throws Exception {
         mvc.perform(post("/bombas").contentType(MediaType.APPLICATION_JSON)
@@ -61,7 +56,6 @@ class BombaCrudTest extends ApiTestBase {
             .andExpect(jsonPath("$.campos.combustivelId").exists());
     }
 
-    /** PUT altera o nome e o combustível da bomba. */
     @Test
     void atualizaNomeECombustivel() throws Exception {
         int gasolina = criarCombustivel("Gasolina", "5.89");
@@ -80,7 +74,6 @@ class BombaCrudTest extends ApiTestBase {
             .andExpect(jsonPath("$.combustivel.id").value(etanol));
     }
 
-    /** PUT em bomba que não existe responde 404. */
     @Test
     void atualizarInexistenteRetorna404() throws Exception {
         int combustivelId = criarCombustivel("Gasolina", "5.89");
@@ -90,7 +83,6 @@ class BombaCrudTest extends ApiTestBase {
             .andExpect(status().isNotFound());
     }
 
-    /** DELETE de bomba sem abastecimentos responde 204 e ela deixa de existir. */
     @Test
     void apagaBombaSemAbastecimentos() throws Exception {
         int id = criarBomba("Descartavel", criarCombustivel("Descartavel", "4.00"));

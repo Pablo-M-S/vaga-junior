@@ -26,15 +26,12 @@ import org.springframework.web.server.ResponseStatusException;
 @ExtendWith(MockitoExtension.class)
 class CombustivelServiceTest {
 
-    /** Repositório simulado: nenhum teste acessa o banco. */
     @Mock
     private CombustivelRepository repository;
 
-    /** Service real sob teste, com o mock acima injetado. */
     @InjectMocks
     private CombustivelService service;
 
-    /** Cria um combustível com id, nome e preço, como se já viesse do banco. */
     private Combustivel combustivel(long id, String nome, String preco) {
         Combustivel c = new Combustivel();
         c.setId(id);
@@ -43,7 +40,6 @@ class CombustivelServiceTest {
         return c;
     }
 
-    /** O nome é gravado sem espaços nas pontas. */
     @Test
     void criaCombustivelRemovendoEspacosDoNome() {
         when(repository.save(any(Combustivel.class))).thenAnswer(i -> i.getArgument(0));
@@ -54,7 +50,6 @@ class CombustivelServiceTest {
         assertEquals(new BigDecimal("5.89"), criado.getPrecoPorLitro());
     }
 
-    /** Nome já usado lança 409 ao criar. */
     @Test
     void criarComNomeDuplicadoLanca409() {
         when(repository.existsByNomeIgnoreCase("Gasolina")).thenReturn(true);
@@ -66,7 +61,6 @@ class CombustivelServiceTest {
         verify(repository, never()).save(any());
     }
 
-    /** Buscar id inexistente lança 404. */
     @Test
     void buscarInexistenteLanca404() {
         when(repository.findById(99L)).thenReturn(Optional.empty());
@@ -76,7 +70,6 @@ class CombustivelServiceTest {
         assertEquals(HttpStatus.NOT_FOUND, erro.getStatusCode());
     }
 
-    /** Atualiza nome e preço do combustível existente. */
     @Test
     void atualizaNomeEPreco() {
         when(repository.findById(1L)).thenReturn(Optional.of(combustivel(1L, "Gasolina", "5.00")));
@@ -88,7 +81,6 @@ class CombustivelServiceTest {
         assertEquals(new BigDecimal("6.50"), atualizado.getPrecoPorLitro());
     }
 
-    /** Nome de outro combustível lança 409 ao atualizar. */
     @Test
     void atualizarParaNomeDeOutroCombustivelLanca409() {
         when(repository.findById(1L)).thenReturn(Optional.of(combustivel(1L, "Gasolina", "5.00")));
@@ -101,7 +93,6 @@ class CombustivelServiceTest {
         verify(repository, never()).save(any());
     }
 
-    /** Erro de chave estrangeira do banco vira 409 ao apagar. */
     @Test
     void apagarCombustivelVinculadoLanca409() {
         Combustivel existente = combustivel(1L, "Gasolina", "5.00");
@@ -113,7 +104,6 @@ class CombustivelServiceTest {
         assertEquals(HttpStatus.CONFLICT, erro.getStatusCode());
     }
 
-    /** Apaga o combustível existente sem erro. */
     @Test
     void apagaCombustivelExistente() {
         Combustivel existente = combustivel(1L, "Gasolina", "5.00");

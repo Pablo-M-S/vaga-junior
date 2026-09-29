@@ -13,20 +13,16 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class CombustivelService {
 
-    /** Acesso ao banco para combustíveis. */
     private final CombustivelRepository repository;
 
-    /** Recebe o repositório por construtor (injeção feita pelo Spring). */
     public CombustivelService(CombustivelRepository repository) {
         this.repository = repository;
     }
 
-    /** Devolve todos os combustíveis cadastrados. */
     public List<Combustivel> listar() {
         return repository.findAll();
     }
 
-    /** Busca por id; responde 404 se não existir. */
     public Combustivel buscar(Long id) {
         return repository.findById(id).orElseThrow(() ->
             new ResponseStatusException(HttpStatus.NOT_FOUND, "Combustível não encontrado"));
@@ -70,7 +66,6 @@ public class CombustivelService {
         }
     }
 
-    /** Monta o erro 409 usado quando o nome do combustível já existe. */
     private ResponseStatusException nomeDuplicado() {
         return new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um combustível com esse nome");
     }

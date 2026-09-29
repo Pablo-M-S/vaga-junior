@@ -12,7 +12,6 @@ import org.springframework.http.MediaType;
 /** Erros padronizados da API: 400 (validação e parâmetros) e 409 (vínculos). */
 class ErrosApiTest extends ApiTestBase {
 
-    /** Apagar um combustível que ainda tem bomba ligada é recusado com 409. */
     @Test
     void apagarCombustivelComBombaRetorna409() throws Exception {
         int combustivelId = criarCombustivel("Etanol", "3.99");
@@ -23,7 +22,6 @@ class ErrosApiTest extends ApiTestBase {
             .andExpect(status().reason("Não é possível apagar: o registro está vinculado a outros dados"));
     }
 
-    /** Apagar uma bomba que já tem abastecimentos é recusado com 409. */
     @Test
     void apagarBombaComAbastecimentoRetorna409() throws Exception {
         int combustivelId = criarCombustivel("Diesel", "6.10");
@@ -34,7 +32,6 @@ class ErrosApiTest extends ApiTestBase {
             .andExpect(status().isConflict());
     }
 
-    /** O 400 de validação lista cada campo inválido no objeto "campos". */
     @Test
     void validacaoInformaQualCampoFalhou() throws Exception {
         mvc.perform(post("/combustiveis").contentType(MediaType.APPLICATION_JSON)
@@ -44,7 +41,6 @@ class ErrosApiTest extends ApiTestBase {
             .andExpect(jsonPath("$.campos.precoPorLitro").exists());
     }
 
-    /** Preço com mais de 3 casas decimais ou acima de 7 dígitos inteiros é recusado com 400. */
     @Test
     void casasDecimaisEValoresEnormesRetornam400() throws Exception {
         mvc.perform(post("/combustiveis").contentType(MediaType.APPLICATION_JSON)
@@ -58,7 +54,6 @@ class ErrosApiTest extends ApiTestBase {
             .andExpect(jsonPath("$.campos.precoPorLitro").exists());
     }
 
-    /** Ordenação por campo inexistente, data inválida e id não numérico dão 400 no formato padrão. */
     @Test
     void parametrosInvalidosRetornam400NoFormatoPadrao() throws Exception {
         mvc.perform(get("/abastecimentos").param("sort", "foo"))

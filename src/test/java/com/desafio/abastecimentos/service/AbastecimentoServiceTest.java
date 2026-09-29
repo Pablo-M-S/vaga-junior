@@ -24,26 +24,21 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-@ExtendWith(MockitoExtension.class)
 /** Testa as regras do service de abastecimentos sem subir o Spring (repositório e BombaService simulados). */
+@ExtendWith(MockitoExtension.class)
 class AbastecimentoServiceTest {
 
-    /** Data fixa (no passado) usada em todos os abastecimentos dos testes. */
     private static final LocalDateTime DATA = LocalDateTime.of(2026, 9, 1, 10, 0);
 
-    /** Repositório simulado: nenhum teste acessa o banco. */
     @Mock
     private AbastecimentoRepository repository;
 
-    /** Service de bombas simulado (usado para achar a bomba do abastecimento). */
     @Mock
     private BombaService bombaService;
 
-    /** Service real sob teste, com os mocks acima injetados. */
     @InjectMocks
     private AbastecimentoService service;
 
-    /** Bomba cujo combustível custa o preço informado. */
     private Bomba bomba(long id, String preco) {
         Combustivel c = new Combustivel();
         c.setId(id);
@@ -72,7 +67,6 @@ class AbastecimentoServiceTest {
         assertEquals(0, new BigDecimal(esperado).compareTo(real), "esperado " + esperado + " mas foi " + real);
     }
 
-    /** Ao criar, guarda o preço do combustível e calcula litros x preço. */
     @Test
     void criaGuardandoOPrecoECalculandoOTotal() {
         when(bombaService.buscar(1L)).thenReturn(bomba(1L, "5.890"));
@@ -84,7 +78,6 @@ class AbastecimentoServiceTest {
         assertValor("58.90", criado.getValorTotal());
     }
 
-    /** O total é arredondado para 2 casas (HALF_UP). */
     @Test
     void arredondaOTotalParaDuasCasas() {
         when(bombaService.buscar(1L)).thenReturn(bomba(1L, "5.890"));
@@ -96,7 +89,6 @@ class AbastecimentoServiceTest {
         assertValor("19.63", criado.getValorTotal());
     }
 
-    /** Bomba inexistente lança 404 ao criar. */
     @Test
     void criarComBombaInexistenteLanca404() {
         when(bombaService.buscar(9L))
@@ -109,7 +101,6 @@ class AbastecimentoServiceTest {
         verify(repository, never()).save(any());
     }
 
-    /** Na mesma bomba, o preço guardado é mantido mesmo com reajuste. */
     @Test
     void atualizarNaMesmaBombaMantemOPrecoPraticadoNaEpoca() {
         // o combustível subiu para 6,00, mas o abastecimento foi feito a 5,00
@@ -124,7 +115,6 @@ class AbastecimentoServiceTest {
         assertValor("100.00", atualizado.getValorTotal());
     }
 
-    /** Trocar de bomba atualiza o preço para o do novo combustível. */
     @Test
     void atualizarTrocandoDeBombaUsaOPrecoDoNovoCombustivel() {
         Bomba nova = bomba(2L, "4.000");
@@ -139,7 +129,6 @@ class AbastecimentoServiceTest {
         assertValor("40.00", atualizado.getValorTotal());
     }
 
-    /** Registro antigo sem preço guardado passa a usar o preço atual. */
     @Test
     void atualizarRegistroAntigoSemPrecoUsaOPrecoAtual() {
         Bomba bomba = bomba(1L, "6.000");
@@ -153,7 +142,6 @@ class AbastecimentoServiceTest {
         assertValor("60.00", atualizado.getValorTotal());
     }
 
-    /** Atualizar id inexistente lança 404. */
     @Test
     void atualizarInexistenteLanca404() {
         when(repository.findById(99L)).thenReturn(Optional.empty());
@@ -164,7 +152,6 @@ class AbastecimentoServiceTest {
         assertEquals(HttpStatus.NOT_FOUND, erro.getStatusCode());
     }
 
-    /** Apaga o abastecimento existente. */
     @Test
     void apagaAbastecimentoExistente() {
         Abastecimento existente = abastecimento(bomba(1L, "5.000"), "10", "5.000");
@@ -175,7 +162,6 @@ class AbastecimentoServiceTest {
         verify(repository).delete(existente);
     }
 
-    /** Apagar id inexistente lança 404. */
     @Test
     void apagarInexistenteLanca404() {
         when(repository.findById(99L)).thenReturn(Optional.empty());

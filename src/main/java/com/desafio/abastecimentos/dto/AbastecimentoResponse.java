@@ -16,7 +16,6 @@ public record AbastecimentoResponse(
         BigDecimal precoPorLitro,
         BigDecimal valorTotal) {
 
-    /** Converte a entidade Abastecimento para o DTO de resposta. */
     public static AbastecimentoResponse de(Abastecimento a) {
         return new AbastecimentoResponse(a.getId(), BombaResponse.de(a.getBomba()), a.getData(),
             a.getLitros(), a.getPrecoPorLitro(), a.getValorTotal());

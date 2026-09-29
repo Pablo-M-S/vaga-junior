@@ -5,7 +5,6 @@ import com.desafio.abastecimentos.model.Bomba;
 /** Bomba devolvida pela API, com o combustível que ela abastece. */
 public record BombaResponse(Long id, String nome, CombustivelResponse combustivel) {
 
-    /** Converte a entidade Bomba para o DTO de resposta. */
     public static BombaResponse de(Bomba b) {
         return new BombaResponse(b.getId(), b.getNome(), CombustivelResponse.de(b.getCombustivel()));
     }

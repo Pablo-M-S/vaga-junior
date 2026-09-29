@@ -11,17 +11,14 @@ import java.time.LocalDateTime;
 @Entity
 public class Abastecimento {
 
-    /** Identificador gerado pelo banco (auto incremento). */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** Bomba em que o abastecimento foi feito; obrigatória (chave estrangeira bomba_id). */
     @ManyToOne(optional = false)
     @JoinColumn(name = "bomba_id")
     private Bomba bomba;
 
-    /** Data e hora do abastecimento. */
     @Column(nullable = false)
     private LocalDateTime data;
 

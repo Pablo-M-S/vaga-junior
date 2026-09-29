@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
-    /** Informações gerais da API mostradas no topo da página do Swagger. */
     @Bean
     public OpenAPI apiInfo() {
         return new OpenAPI().info(new Info()

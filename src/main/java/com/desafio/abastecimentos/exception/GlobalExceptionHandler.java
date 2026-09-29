@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,16 +48,6 @@ public class GlobalExceptionHandler {
             "Dados inválidos: valor fora do limite permitido"));
     }
 
-    /** Monta o corpo padrão do erro: horário, status, nome do status e mensagem. */
-    private Map<String, Object> corpo(HttpStatus status, String mensagem) {
-        Map<String, Object> corpo = new LinkedHashMap<>();
-        corpo.put("timestamp", LocalDateTime.now().toString());
-        corpo.put("status", status.value());
-        corpo.put("erro", status.getReasonPhrase());
-        corpo.put("mensagem", mensagem);
-        return corpo;
-    }
-
     /** 400: parâmetro com tipo errado (ex.: data inválida em ?de= ou id não numérico). */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<Map<String, Object>> tipoInvalido(MethodArgumentTypeMismatchException ex) {
@@ -66,9 +57,18 @@ public class GlobalExceptionHandler {
 
     /** 400: ordenação por campo que não existe (ex.: ?sort=foo). */
     @ExceptionHandler({PropertyReferenceException.class,
-        org.springframework.dao.InvalidDataAccessApiUsageException.class})
+        InvalidDataAccessApiUsageException.class})
     public ResponseEntity<Map<String, Object>> consultaInvalida(Exception ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(corpo(HttpStatus.BAD_REQUEST, "Parâmetros de consulta inválidos (confira o campo de ordenação)"));
+    }
+
+    private Map<String, Object> corpo(HttpStatus status, String mensagem) {
+        Map<String, Object> corpo = new LinkedHashMap<>();
+        corpo.put("timestamp", LocalDateTime.now().toString());
+        corpo.put("status", status.value());
+        corpo.put("erro", status.getReasonPhrase());
+        corpo.put("mensagem", mensagem);
+        return corpo;
     }
 }

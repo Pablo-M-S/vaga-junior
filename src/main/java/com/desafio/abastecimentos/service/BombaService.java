@@ -13,23 +13,18 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class BombaService {
 
-    /** Acesso ao banco para bombas. */
     private final BombaRepository repository;
-    /** Usado para conferir se o combustível informado existe. */
     private final CombustivelService combustivelService;
 
-    /** Recebe as dependências por construtor (injeção feita pelo Spring). */
     public BombaService(BombaRepository repository, CombustivelService combustivelService) {
         this.repository = repository;
         this.combustivelService = combustivelService;
     }
 
-    /** Devolve todas as bombas cadastradas. */
     public List<Bomba> listar() {
         return repository.findAll();
     }
 
-    /** Busca por id; responde 404 se não existir. */
     public Bomba buscar(Long id) {
         return repository.findById(id).orElseThrow(() ->
             new ResponseStatusException(HttpStatus.NOT_FOUND, "Bomba não encontrada"));
@@ -70,7 +65,6 @@ public class BombaService {
         }
     }
 
-    /** Monta o erro 409 usado quando o nome da bomba já existe. */
     private ResponseStatusException nomeDuplicado() {
         return new ResponseStatusException(HttpStatus.CONFLICT, "Já existe uma bomba com esse nome");
     }
