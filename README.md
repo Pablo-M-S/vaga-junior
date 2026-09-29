@@ -19,9 +19,11 @@ API REST em Java para cadastro e consulta de abastecimentos de um posto de combu
 
 ## Como rodar
 
-Requisitos: Java 17+ e Maven.
+Requisitos: Java 17+. O Maven Wrapper baixa o Maven na primeira execução.
 
-    mvn spring-boot:run
+    ./mvnw spring-boot:run
+
+No Windows, use `mvnw.cmd`.
 
 A API sobe em http://localhost:8080 e os dados ficam na pasta data/.
 Swagger: http://localhost:8080/swagger-ui/index.html
@@ -36,11 +38,11 @@ O volume `abastecimentos-data` guarda o banco; sem ele, os dados se perdem quand
 
 ## Testes
 
-    mvn test
+    ./mvnw test
 
 Usam H2 em memória. São dois grupos:
 
-- **API (MockMvc):** cálculo do valor total, preço praticado, filtros e paginação, GET por id, PUT e DELETE dos três recursos, nomes duplicados, data futura e os erros 400, 404 e 409.
+- **API (MockMvc):** cálculo do valor total, preço praticado, filtros e paginação, GET por id, PUT e DELETE dos três recursos, nomes duplicados (inclusive requisições simultâneas), data futura e os erros 400, 404 e 409.
 - **Unitários (Mockito):** regras dos services sem subir o Spring.
 
 ## Endpoints
@@ -78,6 +80,8 @@ Todos os parâmetros são opcionais. As datas usam o formato yyyy-MM-dd e o per�
 
 ## Erros
 
+Todos os erros saem em JSON com `timestamp`, `status`, `erro` e `mensagem`. Nos 400 de validação vem também o mapa `campos`, com o campo que falhou.
+
 - **400**: dados inválidos (a resposta lista os campos que falharam), data no futuro, JSON malformado, parâmetro com tipo errado (ex.: `?de=abc`) ou ordenação por campo inexistente
 - **404**: registro não encontrado (inclui bomba ou combustível informado que não existe)
 - **409**: nome já existente (combustível ou bomba), ou tentativa de apagar um combustível ou bomba que ainda está vinculado a outros dados
@@ -88,13 +92,13 @@ Todos os parâmetros são opcionais. As datas usam o formato yyyy-MM-dd e o per�
 - Cada abastecimento **guarda o preço por litro do momento**. Se o combustível for reajustado depois, o histórico não muda. No PUT, o preço guardado só é trocado se a bomba mudar (ou se o registro for anterior a este campo, e não tiver preço guardado).
 - **DTOs** de entrada (`*Request`, com as validações) e de saída (`*Response`), para não expor as entidades. Nas relações a entrada usa só o id: `{"bombaId":1}`.
 - Os dados ficam em H2 **em arquivo**, para sobreviverem a um restart.
-- A checagem de nome duplicado é feita no service (não há restrição única no banco).
+- Nome único de combustível e de bomba: o service confere antes (sem diferenciar maiúsculas) para dar uma mensagem clara, e a restrição única do banco barra requisições simultâneas, que também respondem 409.
 
 ## Limitações conhecidas
 
-- A checagem de nome duplicado não é atômica: duas requisições simultâneas com o mesmo nome podem passar. Uma restrição única no banco resolveria.
+- A restrição única do banco diferencia maiúsculas de minúsculas; só a checagem do service ignora. Duas requisições simultâneas que diferem apenas na caixa (ex.: "Gasolina" e "GASOLINA") ainda podem passar.
+- Em um banco `data/` antigo que já tenha nomes repetidos, a restrição única não é criada; apague a pasta `data/` para recriar.
 - Data "agora" enviada por um cliente com o relógio adiantado pode ser recusada como futura.
-- Os erros 404 e 409 usam o formato padrão do Spring; só os 400 têm o corpo com `campos`.
 - Abastecimentos criados antes do campo de preço praticado ficam sem preço guardado até serem alterados.
 
 ## Estrutura
