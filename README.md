@@ -27,7 +27,11 @@ No Windows, use `mvnw.cmd`.
 
 A API sobe em http://localhost:8080 e os dados ficam na pasta data/.
 Swagger: http://localhost:8080/swagger-ui/index.html
-Console do banco: http://localhost:8080/h2-console (URL jdbc:h2:file:./data/abastecimentos, usuário sa, senha em branco). Ele fica habilitado só por conveniência de desenvolvimento.
+Console do banco: vem **desligado** por padrão, para não expor o banco na porta da API. Para usar em desenvolvimento:
+
+    ./mvnw spring-boot:run -Dspring-boot.run.arguments=--spring.h2.console.enabled=true
+
+Depois acesse http://localhost:8080/h2-console (URL jdbc:h2:file:./data/abastecimentos, usuário sa, senha em branco).
 
 ### Com Docker
 
@@ -83,8 +87,10 @@ Todos os parâmetros são opcionais. As datas usam o formato yyyy-MM-dd e o per�
 Todos os erros saem em JSON com `timestamp`, `status`, `erro` e `mensagem`. Nos 400 de validação vem também o mapa `campos`, com o campo que falhou.
 
 - **400**: dados inválidos (a resposta lista os campos que falharam), data no futuro, JSON malformado, parâmetro com tipo errado (ex.: `?de=abc`) ou ordenação por campo inexistente
-- **404**: registro não encontrado (inclui bomba ou combustível informado que não existe)
+- **404**: registro não encontrado (inclui bomba ou combustível informado que não existe) ou rota inexistente
+- **405**: método HTTP não permitido para a rota
 - **409**: nome já existente (combustível ou bomba), ou tentativa de apagar um combustível ou bomba que ainda está vinculado a outros dados
+- **500**: erro inesperado (o detalhe vai só para o log do servidor)
 
 ## Decisões de projeto
 
