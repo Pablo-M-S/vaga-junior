@@ -3,6 +3,7 @@ package com.desafio.abastecimentos;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -86,5 +87,19 @@ class ErrosApiTest extends ApiTestBase {
             .andExpect(jsonPath("$.status").value(409))
             .andExpect(jsonPath("$.erro").value("Conflict"))
             .andExpect(jsonPath("$.mensagem").value("Já existe um combustível com esse nome"));
+    }
+
+    @Test
+    void rotaInexistenteEMetodoNaoPermitidoUsamOFormatoPadrao() throws Exception {
+        mvc.perform(get("/rota-que-nao-existe"))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.status").value(404))
+            .andExpect(jsonPath("$.erro").value("Not Found"))
+            .andExpect(jsonPath("$.mensagem").exists());
+
+        mvc.perform(put("/abastecimentos"))
+            .andExpect(status().isMethodNotAllowed())
+            .andExpect(jsonPath("$.status").value(405))
+            .andExpect(jsonPath("$.mensagem").exists());
     }
 }
