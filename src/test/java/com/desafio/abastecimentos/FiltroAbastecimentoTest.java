@@ -40,4 +40,22 @@ class FiltroAbastecimentoTest extends ApiTestBase {
             .andExpect(jsonPath("$.content.length()").value(1))
             .andExpect(jsonPath("$.page.totalElements").value(2));
     }
+
+    @Test
+    void periodoInvertidoRetorna400() throws Exception {
+        mvc.perform(get("/abastecimentos")
+                .param("de", "2026-09-30")
+                .param("ate", "2026-09-01"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(400))
+            .andExpect(jsonPath("$.mensagem").value("A data inicial (de) não pode ser depois da data final (ate)"));
+    }
+
+    @Test
+    void mesmoDiaNoDeEnoAteEPermitido() throws Exception {
+        mvc.perform(get("/abastecimentos")
+                .param("de", "2026-09-15")
+                .param("ate", "2026-09-15"))
+            .andExpect(status().isOk());
+    }
 }
