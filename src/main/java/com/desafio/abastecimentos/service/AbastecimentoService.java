@@ -32,9 +32,15 @@ public class AbastecimentoService {
 
     /**
      * Lista com filtros opcionais (bomba e período, inclusive) e paginação.
+     * Responde 400 se "de" for depois de "ate".
      * A consulta é montada na hora, só com os filtros que foram informados.
      */
     public Page<Abastecimento> listar(Long bombaId, LocalDate de, LocalDate ate, Pageable pageable) {
+        // período invertido não tem resultado possível: avisa o cliente em vez de devolver lista vazia
+        if (de != null && ate != null && de.isAfter(ate)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                "A data inicial (de) não pode ser depois da data final (ate)");
+        }
         // começa sem nenhuma condição e vai acrescentando as que vieram na requisição
         Specification<Abastecimento> spec = Specification.where(null);
         if (bombaId != null) {
