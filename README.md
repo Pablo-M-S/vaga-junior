@@ -80,13 +80,13 @@ Regras de entrada:
 
     GET /abastecimentos?bombaId=1&de=2026-09-01&ate=2026-09-30&page=0&size=10
 
-Todos os parâmetros são opcionais. As datas usam o formato yyyy-MM-dd e o período é inclusivo nas duas pontas. O resultado vem do mais recente para o mais antigo (20 por página, por padrão), num objeto com os campos content e page.
+Todos os parâmetros são opcionais. As datas usam o formato yyyy-MM-dd e o período é inclusivo nas duas pontas, e `de` não pode ser depois de `ate` (senão a API responde 400). O resultado vem do mais recente para o mais antigo (20 por página, por padrão), num objeto com os campos content e page.
 
 ## Erros
 
 Todos os erros saem em JSON com `timestamp`, `status`, `erro` e `mensagem`. Nos 400 de validação vem também o mapa `campos`, com o campo que falhou.
 
-- **400**: dados inválidos (a resposta lista os campos que falharam), data no futuro, JSON malformado, parâmetro com tipo errado (ex.: `?de=abc`) ou ordenação por campo inexistente
+- **400**: dados inválidos (a resposta lista os campos que falharam), data no futuro, JSON malformado, parâmetro com tipo errado (ex.: `?de=abc`), período invertido (`de` depois de `ate`) ou ordenação por campo inexistente
 - **404**: registro não encontrado (inclui bomba ou combustível informado que não existe) ou rota inexistente
 - **405**: método HTTP não permitido para a rota
 - **409**: nome já existente (combustível ou bomba), ou tentativa de apagar um combustível ou bomba que ainda está vinculado a outros dados
