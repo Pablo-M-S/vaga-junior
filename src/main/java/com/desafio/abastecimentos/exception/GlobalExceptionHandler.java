@@ -1,14 +1,19 @@
 package com.desafio.abastecimentos.exception;
 
+import jakarta.servlet.ServletException;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.mapping.PropertyReferenceException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -18,10 +23,13 @@ import org.springframework.web.server.ResponseStatusException;
 /**
  * Padroniza as respostas de erro da API em JSON, num só lugar: timestamp, status, erro e mensagem.
  * Os 400 de validação acrescentam o mapa "campos". Os 404 e 409 são lançados pelos
- * services (ResponseStatusException) e saem no mesmo formato.
+ * services (ResponseStatusException) e saem no mesmo formato, assim como rota inexistente
+ * (404), método não permitido (405) e erros inesperados (500).
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     /** 404, 409 e demais erros de negócio lançados pelos services. */
     @ExceptionHandler(ResponseStatusException.class)
@@ -68,8 +76,40 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({PropertyReferenceException.class,
         InvalidDataAccessApiUsageException.class})
     public ResponseEntity<Map<String, Object>> consultaInvalida(Exception ex) {
+        // registra a causa: esse handler é amplo e não deve esconder um bug real como se fosse erro do cliente
+        log.warn("Consulta rejeitada com 400: {}", ex.toString());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(corpo(HttpStatus.BAD_REQUEST, "Parâmetros de consulta inválidos (confira o campo de ordenação)"));
+    }
+
+    /** Rota inexistente (404), método não permitido (405), tipo de conteúdo não aceito (415) etc. */
+    @ExceptionHandler(ServletException.class)
+    public ResponseEntity<Map<String, Object>> erroDoServlet(ServletException ex) {
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        HttpHeaders cabecalhos = HttpHeaders.EMPTY;
+        if (ex instanceof ErrorResponse resposta) {
+            status = HttpStatus.valueOf(resposta.getStatusCode().value());
+            cabecalhos = resposta.getHeaders(); // ex.: o cabeçalho Allow do 405
+        }
+        if (status.is5xxServerError()) {
+            log.error("Erro inesperado no servlet", ex);
+        }
+        String mensagem = switch (status) {
+            case NOT_FOUND -> "Rota não encontrada";
+            case METHOD_NOT_ALLOWED -> "Método não permitido para esta rota";
+            case UNSUPPORTED_MEDIA_TYPE -> "Tipo de conteúdo não suportado";
+            case INTERNAL_SERVER_ERROR -> "Erro interno do servidor";
+            default -> status.getReasonPhrase();
+        };
+        return ResponseEntity.status(status).headers(cabecalhos).body(corpo(status, mensagem));
+    }
+
+    /** 500: qualquer erro não previsto sai no mesmo formato JSON, sem vazar detalhes internos. */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> erroInesperado(Exception ex) {
+        log.error("Erro inesperado", ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(corpo(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno do servidor"));
     }
 
     private Map<String, Object> corpo(HttpStatus status, String mensagem) {
